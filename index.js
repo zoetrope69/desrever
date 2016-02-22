@@ -41,8 +41,8 @@ io.on('connection', function(socket){
   socket.on('audio', function(data){
     console.log('sent w audio', socket.word);
     console.log('audio: ', data);
-    newWord(socket);
     socket.broadcast.emit('audio', socket.username, socket.word, data);
+    newWord(socket);
   });
 
   socket.on('addUser', function(username){
