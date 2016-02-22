@@ -15,6 +15,7 @@ var words = [
 ];
 
 server.listen(3000);
+console.log('listening on localhost:3000');
 
 app.use(express.static('public'));
 
