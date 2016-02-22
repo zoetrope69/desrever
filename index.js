@@ -3,6 +3,8 @@ var app = express();
 var server = require('http').Server(app);
 var io = require('socket.io')(server);
 
+var shortid = require('shortid');
+
 var usernames = {};
 
 var words = [
@@ -19,7 +21,7 @@ console.log('listening on localhost:3000');
 
 app.use(express.static('public'));
 
-app.get('/', function (req, res) {
+app.get('*', function (req, res) {
   res.sendfile(__dirname + '/index.html');
 });
 
@@ -31,10 +33,19 @@ function newWord(socket) {
   socket.emit('word', randomWord);
 }
 
-io.on('connection', function(socket){
-  console.log('a user connected');
+// io.on('connection', function(socket){
+//   socket.on('say to someone', function(id, msg){
+//     socket.broadcast.to(id).emit('my message', msg);
+//   });
+// });
 
-  newWord(socket);
+io.on('connection', function(socket){
+
+  console.log('a user connected', socket);
+
+  socket.on('room', function(room) {
+    socket.join(room);
+  });
 
   io.sockets.emit('users', usernames);
 
@@ -46,6 +57,8 @@ io.on('connection', function(socket){
   });
 
   socket.on('addUser', function(username){
+
+    io.sockets.in('asda').emit('info', 'big boys');
     socket.username = username;
     console.log('username: ' + username);
     usernames[username] = username;

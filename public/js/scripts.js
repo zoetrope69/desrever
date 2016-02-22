@@ -1,6 +1,10 @@
 var socket = io.connect();
 
 socket.on('connect', function(){
+  var room = window.location.pathname.split('/')[1];
+  console.log('room', room);
+  socket.emit('room', room);
+
   socket.emit('addUser', prompt("What's your name: "));
 });
 
