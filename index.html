@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>reverse audio</title>
+</head>
+<body>
+  <button class="button--record">Record</button>
+
+  <label for="ready">I'm Ready</label>
+  <input type="checkbox" id="ready" name="ready"/>
+
+  <h1 class="word"></h1>
+  <div class="guesses"></div>
+  <h2 class="wordGuessOutput"></h2>
+  <ul class="info"></ul>
+  <div class="output"></div>
+  <div class="users"></div>
+
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="js/recorder.js"></script>
+  <script src="js/scripts.js"></script>
+</body>
+</html>
