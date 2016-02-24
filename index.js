@@ -87,6 +87,7 @@ io.on('connection', function(socket){
       // removes user from array
       rooms[socket.room].users.splice(index, 1);
     }
+    var users = rooms[socket.room].users;
 
     // update username list on everyone's client
     io.sockets.in(socket.room).emit('users', users);
