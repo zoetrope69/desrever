@@ -3,19 +3,25 @@
 <head>
   <meta charset="UTF-8">
   <title>reverse audio</title>
+  <link rel="stylesheet" href="css/styles.css" media="screen" title="no title" charset="utf-8">
 </head>
 <body>
-  <button class="button--record">Record</button>
+  <div class="grid-frame">
+    <div class="grid-block">
+      <button class="button--record">Record</button>
 
-  <label for="ready">I'm Ready</label>
-  <input type="checkbox" id="ready" name="ready"/>
-
-  <h1 class="word"></h1>
-  <div class="guesses"></div>
-  <h2 class="wordGuessOutput"></h2>
-  <ul class="info"></ul>
-  <div class="output"></div>
-  <div class="users"></div>
+      <label for="ready">I'm Ready</label>
+      <input type="checkbox" id="ready" name="ready"/>
+    </div>
+    <div class="grid-block">
+      <h1 class="word"></h1>
+      <div class="guesses"></div>
+      <h2 class="wordGuessOutput"></h2>
+      <ul class="info"></ul>
+      <div class="output"></div>
+      <div class="users"></div>
+    </div>
+  </div>
 
   <script src="/socket.io/socket.io.js"></script>
   <script src="js/recorder.js"></script>

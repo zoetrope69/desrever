@@ -1,23 +1,47 @@
 var express = require('express');
 var app = express();
+var exphbs  = require('express-handlebars');
 var server = require('http').Server(app);
 var io = require('socket.io')(server);
 
+var randomWord = require('random-word');
+
+var rooms = {};
+
 // server on port
-var port = process.env.PORT || 3000;
+var port = process.env.PORT || 3002;
 server.listen(port);
 console.log('Listening on localhost:' + port);
 
 // public directory holds all static assets served up
 app.use(express.static('public'));
 
+// using handlebars for templatin
+app.engine('handlebars', exphbs({ defaultLayout: 'main' }));
+app.set('view engine', 'handlebars');
+
 // every request we get
-app.get('*', function (req, res) {
-  // send back the index.html file
-  res.sendFile(__dirname + '/index.html');
+app.get('/', function (req, res) {
+  var room = `${randomWord()}-${randomWord()}-${randomWord()}`.split('').reverse().join('');
+  rooms[room] = { users: [] };
+  res.render('home', { room });
 });
 
-var rooms = {};
+// every request we get
+app.get('/:room', function (req, res) {
+  var room = req.params.room;
+
+  // is there a room
+  // send over the users to the room
+
+  res.render('game', { room });
+});
+
+// every request we get
+app.get('/game', function (req, res) {
+  // send back the index.html file
+  res.sendFile(__dirname + '/game.html');
+});
 
 var words = [
   { id: 1, word: 'shaggy', points: 200 },
