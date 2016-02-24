@@ -5,18 +5,20 @@ socket.on('connect', function(){
   console.log('room', room);
   socket.emit('room', room);
 
-  socket.emit('addUser', prompt("What's your name: "));
+  socket.emit('newUser', prompt("What's your name: "));
 });
 
-socket.on('word', function(data){
+socket.on('newWord', function(data){
   document.querySelector('#ready').checked = false;
   document.querySelector('.word').innerHTML = data.word;
 });
 
 socket.on('users', function (users) {
+  console.log('users', users);
   var output = '<h2>Connected users:</h2><ul>';
-  for (username in users) {
-    output += '<li>'+ username + '</li>';
+  for (var i = 0; i < users.length; i++) {
+    var user = users[i];
+    output += '<li>'+ user + '</li>';
   }
   output += '</ul>';
   document.querySelector('.users').innerHTML = output;
@@ -28,7 +30,7 @@ socket.on('info', function (text) {
   document.querySelector('.info').appendChild(li);
 });
 
-socket.on('audio', function(username, word, arrayBuffer) {
+socket.on('recieveAudio', function(username, word, arrayBuffer) {
   var guesses = document.querySelector('.guesses');
   var wordGuessOutput = document.querySelector('.wordGuessOutput');
 
@@ -131,7 +133,7 @@ function handleWAV(blob) {
 
     var readyCheckbox = document.querySelector('#ready');
     if (readyCheckbox.checked) {
-      socket.emit('audio', arrayBuffer);
+      socket.emit('sendAudio', arrayBuffer);
     } else {
       reverseAudio(arrayBuffer);
     }

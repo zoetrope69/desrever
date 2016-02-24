@@ -3,9 +3,21 @@ var app = express();
 var server = require('http').Server(app);
 var io = require('socket.io')(server);
 
-var shortid = require('shortid');
+// server on port
+var port = process.env.PORT || 3000;
+server.listen(port);
+console.log('Listening on localhost:' + port);
 
-var usernames = {};
+// public directory holds all static assets served up
+app.use(express.static('public'));
+
+// every request we get
+app.get('*', function (req, res) {
+  // send back the index.html file
+  res.sendFile(__dirname + '/index.html');
+});
+
+var rooms = {};
 
 var words = [
   { id: 1, word: 'shaggy', points: 200 },
@@ -16,62 +28,71 @@ var words = [
   { id: 10, word: 'oatibix', points: 100 }
 ];
 
-server.listen(3000);
-console.log('listening on localhost:3000');
-
-app.use(express.static('public'));
-
-app.get('*', function (req, res) {
-  res.sendfile(__dirname + '/index.html');
-});
-
+// generate a new word
 function newWord(socket) {
+  // get a random word from the list
   var randNo = Math.floor(Math.random() * words.length);
-  console.log(randNo);
   var randomWord = words[randNo];
+
+  // and assign it to the socket and send it to the client
   socket.word = randomWord;
-  socket.emit('word', randomWord);
+  socket.emit('newWord', randomWord);
 }
 
-// io.on('connection', function(socket){
-//   socket.on('say to someone', function(id, msg){
-//     socket.broadcast.to(id).emit('my message', msg);
-//   });
-// });
-
+// when user connects
 io.on('connection', function(socket){
+  console.log('a user connected');
 
-  console.log('a user connected', socket);
-
+  // if a room is sent to the server
   socket.on('room', function(room) {
+    // assign room to socket and join it
+    socket.room = room;
     socket.join(room);
   });
 
-  io.sockets.emit('users', usernames);
+  // when sent audio to server
+  socket.on('sendAudio', function(data){
+    // send everyone but current user the audio
+    socket.broadcast.in(socket.room).emit('recieveAudio', socket.username, socket.word, data);
 
-  socket.on('audio', function(data){
-    console.log('sent w audio', socket.word);
-    console.log('audio: ', data);
-    socket.broadcast.emit('audio', socket.username, socket.word, data);
+    // finished with old word so assign new word
     newWord(socket);
   });
 
-  socket.on('addUser', function(username){
-
-    io.sockets.in('asda').emit('info', 'big boys');
+  socket.on('newUser', function(username){
+    // assign username to socket
     socket.username = username;
-    console.log('username: ' + username);
-    usernames[username] = username;
-    console.log(usernames);
-    io.sockets.emit('users', usernames);
-    socket.broadcast.emit('info', socket.username + ' has connected');
+
+    // add username to current users list in room
+    rooms[socket.room] = rooms[socket.room] || { users: [] }; // default to empty if no users
+    rooms[socket.room].users.push(username);
+    var users = rooms[socket.room].users;
+
+    // update username list on everyone's client
+    io.sockets.in(socket.room).emit('users', users);
+
+    // send some info about what happened
+    socket.broadcast.in(socket.room).emit('info', socket.username + ' has connected');
   });
 
+  // if user disconnects
   socket.on('disconnect', function(){
-    console.log('user disconnected');
-    delete usernames[socket.username];
-    io.sockets.emit('users', usernames);
-    socket.broadcast.emit('info', socket.username + ' has disconnected');
+    console.log(socket.username + ' disconnected');
+
+    // remove username from current users list in room
+    var currentUsers = rooms[socket.room].users;
+    var index = currentUsers.indexOf(socket.username);
+    // if user is in the array
+    if (index > -1) {
+      // removes user from array
+      rooms[socket.room].users.splice(index, 1);
+    }
+
+    // update username list on everyone's client
+    io.sockets.in(socket.room).emit('users', users);
+
+    // send some info about what happened
+    socket.broadcast.in(socket.room).emit('info', socket.username + ' has disconnected');
   });
 
 });
