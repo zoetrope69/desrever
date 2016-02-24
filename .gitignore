@@ -1,1 +1,6 @@
+# node stuff
 node_modules/
+npm-debug.log
+
+# built files
+dist/

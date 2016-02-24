@@ -9,12 +9,12 @@ var randomWord = require('random-word');
 var rooms = {};
 
 // server on port
-var port = process.env.PORT || 3002;
+var port = process.env.PORT || 3000;
 server.listen(port);
 console.log('Listening on localhost:' + port);
 
-// public directory holds all static assets served up
-app.use(express.static('public'));
+// dist directory holds all static assets served up
+app.use(express.static('dist'));
 
 // using handlebars for templatin
 app.engine('handlebars', exphbs({ defaultLayout: 'main' }));

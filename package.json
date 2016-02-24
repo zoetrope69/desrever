@@ -2,9 +2,12 @@
   "name": "reverse",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "app.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "node app.js",
+    "dev": "concurrently 'gulp' 'nodemon app.js'",
+    "lint": "eslint -c .eslintrc src/",
+    "test": "npm run lint"
   },
   "author": "Zac Colley <hi@zaccolley.com> (http://zaccolley.com/)",
   "license": "ISC",
@@ -13,5 +16,18 @@
     "express-handlebars": "^3.0.0",
     "random-word": "^1.0.2",
     "socket.io": "^1.4.5"
+  },
+  "devDependencies": {
+    "browser-sync": "^2.11.1",
+    "concurrently": "^2.0.0",
+    "gulp": "^3.9.1",
+    "gulp-concat": "^2.6.0",
+    "gulp-minify-css": "^1.2.4",
+    "gulp-notify": "^2.2.0",
+    "gulp-plumber": "^1.1.0",
+    "gulp-rename": "^1.2.2",
+    "gulp-sass": "^2.2.0",
+    "gulp-uglify": "^1.5.3",
+    "gulp-util": "^3.0.7"
   }
 }

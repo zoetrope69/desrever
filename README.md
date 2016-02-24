@@ -6,7 +6,10 @@ uses https://github.com/daaain/JSSoundRecorder
 
 `npm install`
 
+# dev
+
+`npm run dev`
+
 # run
 
-1. `node index.js`
-2. go to [http://localhost:3000](http://localhost:3000)
+`npm start`
