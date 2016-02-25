@@ -1,9 +1,10 @@
 var gulp = require('gulp');
 var sass = require('gulp-sass');
+var minifycss = require('gulp-minify-css');
 var uglify = require('gulp-uglify');
+var copy = require('gulp-copy');
 var rename = require('gulp-rename');
 var notify = require('gulp-notify');
-var minifycss = require('gulp-minify-css');
 var concat = require('gulp-concat');
 var plumber = require('gulp-plumber');
 var browserSync = require('browser-sync');
@@ -15,6 +16,7 @@ var scripts = [
 ];
 
 var stylesheets = [
+  './src/scss',
   './node_modules/foundation-apps/scss'
 ];
 
@@ -41,6 +43,11 @@ gulp.task('sass', function () {
     .pipe(reload({ stream: true }));
 });
 
+gulp.task('copy', function () {
+  return gulp.src('src/assets/*')
+    .pipe(copy('dist/assets/', { prefix: 2 }));
+});
+
 /* Reload task */
 gulp.task('bs-reload', function () {
   browserSync.reload();
@@ -54,11 +61,13 @@ gulp.task('browser-sync', function() {
 });
 
 /* Watch scss, js and html files, doing different things with each. */
-gulp.task('default', ['sass', 'browser-sync'], function () {
+gulp.task('default', ['sass', 'scripts', 'copy', 'browser-sync'], function () {
   /* Watch scss, run the sass task on change. */
   gulp.watch(['src/scss/**/*.scss'], ['sass'])
   /* Watch app.js file, run the scripts task on change. */
   gulp.watch(['src/js/**/*.js'], ['scripts'])
   /* Watch .html files, run the bs-reload task on change. */
   gulp.watch(['views/**/*.handlebars', 'app.js'], ['bs-reload']);
+  /* Watch assets, copy and bs-reload on change. */
+  gulp.watch(['src/assets/*'], ['copy', 'bs-reload']);
 });
