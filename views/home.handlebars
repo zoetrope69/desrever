@@ -1,8 +1,20 @@
-<h1>hello and welcome to this gr8 website</h1>
-damn daniel, at it again with the white vans
+<div class="grid-block">
+<div class="grid-container">
+  <h1>hello and welcome to this gr8 website</h1>
+  <h2>damn daniel, at it again with the white vans</h2>
 
-<a href="/{{room}}">create room</a>
-<button type="button" name="button">join room</button>
+  <a class="joinButton button large expand" href="/{{room}}">New Room</a>
 
-<input value="" placeholder="your friend's url here"/>
-<a href="/sdadsadsa">go to ur friends room</a>
+  <br />
+  <p>OR</p>
+  <br />
+
+  <label>
+    Enter your room URL here
+    <span class="inline-label">
+      <input class="join-room__input" type="search" placeholder="http://localhost:3000/cool-url-here">
+      <a class="joinButton join-room__button button" href="/" class="button">Join room</a>
+    </span>
+  </label>
+</div>
+</div>

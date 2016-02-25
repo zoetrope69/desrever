@@ -1,165 +1,173 @@
-var socket = io.connect();
+function displayError(message) {
+  var errorMessage = document.querySelector('.error-message');
+  errorMessage.innerHTML = message;
+  errorMessage.style.display = 'block';
+}
 
-socket.on('connect', function(){
-  var room = window.location.pathname.split('/')[1];
-  console.log('room', room);
-  socket.emit('room', room);
+function makeId() {
+  var text = '';
+  var possible = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
 
-  socket.emit('newUser', prompt("What's your name: "));
-});
-
-socket.on('newWord', function(data){
-  document.querySelector('#ready').checked = false;
-  document.querySelector('.word').innerHTML = data.word;
-});
-
-socket.on('users', function (users) {
-  console.log('users', users);
-  var output = '<h2>Connected users:</h2><ul>';
-  for (var i = 0; i < users.length; i++) {
-    var user = users[i];
-    output += '<li>'+ user + '</li>';
+  for(var i = 0; i < 5; i++) {
+    text += possible.charAt(Math.floor(Math.random() * possible.length));
   }
-  output += '</ul>';
-  document.querySelector('.users').innerHTML = output;
-});
 
-socket.on('info', function (text) {
-  var li = document.createElement('li');
-  li.appendChild(document.createTextNode(text));
-  document.querySelector('.info').appendChild(li);
-});
+  return text;
+}
 
-socket.on('recieveAudio', function(username, word, arrayBuffer) {
-  var guesses = document.querySelector('.guesses');
-  var wordGuessOutput = document.querySelector('.wordGuessOutput');
-
-  guesses.innerHTML = '';
-
-  var button = document.createElement('button');
-  button.appendChild(document.createTextNode(word.word));
-  button.addEventListener('click', function(){
-      wordGuessOutput.innerHTML = 'correct, ' + username + ' got ' + word.points + 'points';
-      guesses.innerHTML = '';
+function game() {
+  navigator.getUserMedia({ audio: true }, startUserMedia, function(e) {
+    displayError('Cant get user media');
+    console.warn('No live audio input: ' + e);
   });
-  guesses.appendChild(button);
 
+  function startUserMedia(stream) {
+    var socket = io.connect();
+    var audioContext = new AudioContext();
+    console.log('Audio context set up.');
 
-  for (var i = 0; i < 4; i++) {
-    var button = document.createElement('button');
-    button.appendChild(document.createTextNode('not the answer'));
-    button.addEventListener('click', function(){
-      wordGuessOutput.innerHTML = 'wrong, it was meant to be' + word.word;
-      guesses.innerHTML = '';
+    var recordButtonEl = document.querySelector('.button--record');
+    var readyToggleEl = document.querySelector('.checkbox--record');
+    var wordEl = document.querySelector('.word');
+
+    socket.on('connect', function(){
+      var room = window.location.pathname.split('/')[1];
+      socket.emit('room', room);
+
+      socket.emit('newUser', makeId());
     });
-    guesses.appendChild(button);
+
+    socket.on('newWord', function(data){
+      readyToggleEl.checked = false;
+      wordEl.innerHTML = data.word;
+    });
+
+    socket.on('users', function (users, you) {
+      var output = '<h2>Connected users:</h2><ul>';
+      for (var i = 0; i < users.length; i++) {
+        var user = users[i];
+        output += '<li>'+ user + (user === you ? '<small>You!</small>' : '') + '</li>';
+      }
+      output += '</ul>';
+      document.querySelector('.users').innerHTML = output;
+    });
+
+    socket.on('info', function (text) {
+      var li = document.createElement('li');
+      li.appendChild(document.createTextNode(text));
+      document.querySelector('.info').appendChild(li);
+    });
+
+    socket.on('recieveAudio', function(username, word, blob) {
+      console.log(username, word, blob);
+      reverseAudio(blob);
+    });
+
+    var input = audioContext.createMediaStreamSource(stream);
+    console.log('Media stream created.');
+
+    volume = audioContext.createGain();
+    volume.gain.value = 0;
+    input.connect(volume);
+    volume.connect(audioContext.destination);
+    console.log('Input connected to audio context destination.');
+
+    var recorder = new Recorder(input);
+    console.log('Recorder initialised.');
+
+    if (recordButtonEl) {
+      recordButtonEl.addEventListener('mousedown', function(){ startRecording(recorder) });
+      recordButtonEl.addEventListener('mouseup', function(){ stopRecording(recorder) });
+    }
+
+    function reverseAudio(arrayBuffer) {
+      audioContext.decodeAudioData(arrayBuffer, function(buffer) {
+       var source = audioContext.createBufferSource();
+       Array.prototype.reverse.call( buffer.getChannelData(0) );
+       Array.prototype.reverse.call( buffer.getChannelData(1) );
+
+       source.buffer = buffer;
+       source.connect(audioContext.destination);
+       source.start(0);
+     });
+    }
+
+    function startRecording(recorder) {
+      console.log('Recording...');
+      recordButtonEl.innerHTML = 'Recording...';
+
+      recorder.record();
+    }
+
+    function stopRecording(recorder) {
+      console.log('Stopped recording.');
+      recordButtonEl.innerHTML = 'Record!';
+
+      recorder.stop();
+      recorder.exportWAV(handleAudio);
+      recorder.clear();
+    }
+
+    function handleAudio(blob) {
+      var fileReader = new FileReader();
+      fileReader.onload = function() {
+        var arrayBuffer = this.result;
+
+        if (readyToggleEl.checked) {
+          socket.emit('sendAudio', arrayBuffer);
+        } else {
+          reverseAudio(arrayBuffer);
+        }
+      };
+      fileReader.readAsArrayBuffer(blob);
+    }
   }
+}
 
-  reverseAudio(arrayBuffer);
-});
+function lobby() {
+  var joinRoomInput = document.querySelector('.join-room__input');
+  var joinRoomButton = document.querySelector('.join-room__button');
+  joinRoomButton.setAttribute('disabled', true);
+  joinRoomInput.addEventListener('input', function(event) {
+    var roomInput = event.target.value;
 
-var audio_context;
-var recorder;
-var volume;
-var volumeLevel = 0;
-var context = new AudioContext();
+    var hasUrl = roomInput.indexOf(window.location.origin) > -1;
+    var hasRoom = roomInput.length > window.location.origin.length + 1;
 
-function reverseAudio(arrayBuffer){
-  context.decodeAudioData(arrayBuffer, function(buffer) {
-    var source = context.createBufferSource();
-    Array.prototype.reverse.call( buffer.getChannelData(0) );
-    Array.prototype.reverse.call( buffer.getChannelData(1) );
-
-    source.buffer = buffer;
-    source.connect(context.destination);
-    source.start();
+    // if a valid url then change the button
+    if (hasUrl && hasRoom) {
+      joinRoomButton.setAttribute('disabled', false);
+      joinRoomButton.setAttribute('href', roomInput);
+      joinRoomButton.classList.remove('disabled');
+    } else {
+      joinRoomButton.setAttribute('href', '#');
+      joinRoomButton.setAttribute('disabled', true);
+      joinRoomButton.classList.add('disabled');
+    }
   });
 }
 
-function startUserMedia(stream) {
-  var input = audio_context.createMediaStreamSource(stream);
-  console.log('Media stream created.');
-
-  volume = audio_context.createGain();
-  volume.gain.value = volumeLevel;
-  input.connect(volume);
-  volume.connect(audio_context.destination);
-  console.log('Input connected to audio context destination.');
-
-  recorder = new Recorder(input);
-  console.log('Recorder initialised.');
-}
-
-function changeVolume(value) {
-  if (!volume) return;
-  volumeLevel = value;
-  volume.gain.value = value;
-}
-
-function startRecording() {
-  recorder && recorder.record();
-  document.querySelector('.button--record').innerHTML = 'Recording...';
-  console.log('Recording...');
-}
-
-function stopRecording() {
-  var recordButton = document.querySelector('.button--record');
-  recorder && recorder.stop();
-  recordButton.innerHTML = 'Record!';
-  console.log('Stopped recording.');
-
-  // create WAV download link using audio data blob
-  createDownloadLink();
-
-  recorder.clear();
-}
-
-function createDownloadLink() {
-  recorder && recorder.exportWAV(function(blob) { handleWAV(blob); });
-}
-
-function handleWAV(blob) {
-  var url = URL.createObjectURL(blob);
-
-  var audioElement = document.createElement('audio');
-
-  audioElement.controls = true;
-  audioElement.src = url;
-
-  var arrayBuffer;
-  var fileReader = new FileReader();
-  fileReader.onload = function() {
-    arrayBuffer = this.result;
-
-    var readyCheckbox = document.querySelector('#ready');
-    if (readyCheckbox.checked) {
-      socket.emit('sendAudio', arrayBuffer);
-    } else {
-      reverseAudio(arrayBuffer);
-    }
-  };
-  fileReader.readAsArrayBuffer(blob);
-}
-
-window.onload = function init() {
+function ready() {
   try {
-    // webkit shim
     window.AudioContext = window.AudioContext || window.webkitAudioContext || window.mozAudioContext;
     navigator.getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia;
     window.URL = window.URL || window.webkitURL || window.mozURL;
 
-    audio_context = new AudioContext();
-    console.log('Audio context set up.');
     console.log('navigator.getUserMedia ' + (navigator.getUserMedia ? 'available.' : 'not present!'));
+
+    // check if there's a room specified in the url
+    var room = window.location.pathname.split('/')[1];
+
+    if (room) {
+      game();
+    } else {
+      lobby();
+    }
   } catch (e) {
-    console.warn('No web audio support in this browser!');
+    var message = 'No web audio support in this browser!';
+    displayError(message);
+    console.warn(message, e);
   }
-
-  navigator.getUserMedia({audio: true}, startUserMedia, function(e) {
-    console.warn('No live audio input: ' + e);
-  });
-
-  var recordButtonEl = document.querySelector('.button--record');
-  recordButtonEl.addEventListener('mousedown', startRecording);
-  recordButtonEl.addEventListener('mouseup', stopRecording);
 };
+
+document.addEventListener('DOMContentLoaded', ready, false);

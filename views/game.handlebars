@@ -1,53 +1,49 @@
-wowwwwwwwwwwww
+<div class="grid-block">
+<div class="grid-container">
+  <h1>{{room}}</h1>
+  <h2>we give them a unique url to share and wait for new people to join</h2>
 
-wlecome to rooms {{room}}
-
-we give them a unique url to share and wait for new people to join
-
-<hr />
-
-<img src="http://placecage.com/100/100" style="border-radius: 50%"/>
-
-whats your name what your number girl
-<input type="text">
-
-<hr />
-
-you need at least 2 people to play you loner
-
-
-<p>invite your friends with this url!</p>
-<input value="http://localhost:3000/{{room}}" />
-<button>copy to clipboard</button>
-
-<h2>users</h2>
-
-<ul>
-  <li>Zac (You!)</li>
-</ul>
-
-<p>im ready to play!</p>
-<input type="checkbox" />
-
-<button>Start game</button>
-
-<hr>
-<hr>
-<hr>
-
-<div class="grid-frame">
   <div class="grid-block">
-    <button class="button--record">Record</button>
+    <div class="grid-block">
+      <img src="http://placecage.com/100/100" style="border-radius: 50%"/>
+    </div>
+    <div class="grid-block">
+    <label>
+      whats your name what your number girl
+      <span class="inline-label">
+        <input type="search" placeholder="Peter Jones">
+      </span>
+    </label>
+    </div>
+  </div>
 
-    <label for="ready">I'm Ready</label>
-    <input type="checkbox" id="ready" name="ready"/>
-  </div>
-  <div class="grid-block">
-    <h1 class="word"></h1>
-    <div class="guesses"></div>
-    <h2 class="wordGuessOutput"></h2>
-    <ul class="info"></ul>
-    <div class="output"></div>
-    <div class="users"></div>
-  </div>
+  you need at least 2 people to play you loner
+
+  <label>
+    invite your friends with this url!
+    <span class="inline-label">
+      <textarea>http://localhost:3000/{{room}}</textarea>
+    </span>
+  </label>
+
+  <hr />
+
+  <ul class="info"></ul>
+  <div class="users"></div>
+
+  <p>im ready to play!</p>
+  <input type="checkbox" />
+
+  <button style="button expand success" type="button">Start game</button>
+
+  <hr />
+
+  <h4 class="word"></h4>
+  <button class="button--record">Record</button>
+
+  <label for="ready">I'm Ready</label>
+  <input class="checkbox--record" type="checkbox" id="ready" name="ready"/>
+
+</div>
+</div>
 </div>
