@@ -98,7 +98,7 @@ io.on('connection', function(socket){
     newWord(socket);
 
     // update username list on everyone's client
-    io.sockets.in(socket.room).emit('users', users);
+    io.sockets.in(socket.room).emit('users', users, socket.username);
 
     // send some info about what happened
     socket.broadcast.in(socket.room).emit('info', socket.username + ' has connected');
@@ -119,7 +119,7 @@ io.on('connection', function(socket){
     var users = rooms[socket.room].users;
 
     // update username list on everyone's client
-    io.sockets.in(socket.room).emit('users', users);
+    io.sockets.in(socket.room).emit('users', users, socket.username);
 
     // send some info about what happened
     socket.broadcast.in(socket.room).emit('info', socket.username + ' has disconnected');
