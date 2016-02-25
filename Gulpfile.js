@@ -9,12 +9,18 @@ var plumber = require('gulp-plumber');
 var browserSync = require('browser-sync');
 var reload = browserSync.reload;
 
+/* Add your JS files here, they will be combined in this order */
+var scripts = [
+  'src/js/**/*.js'
+];
+
+var stylesheets = [
+  './node_modules/foundation-apps/scss'
+];
+
 /* Scripts task */
 gulp.task('scripts', function() {
-  return gulp.src([
-    /* Add your JS files here, they will be combined in this order */
-    'src/js/**/*.js'
-    ])
+  return gulp.src(scripts)
     .pipe(concat('scripts.js'))
     .pipe(gulp.dest('dist/js'))
     .pipe(rename({ suffix: '.min' }))
@@ -26,7 +32,7 @@ gulp.task('scripts', function() {
 gulp.task('sass', function () {
   gulp.src('src/scss/main.scss')
     .pipe(plumber())
-    .pipe(sass())
+    .pipe(sass({ includePaths: stylesheets }))
     .pipe(gulp.dest('dist/css'))
     .pipe(rename({ suffix: '.min' }))
     .pipe(minifycss())
