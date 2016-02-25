@@ -13,37 +13,41 @@
   background: #E6E3DA;
 }
 
-.user--nessa {
+.user--waiting {
+  -webkit-filter: grayscale(1);
+}
+
+.user--1 {
+  background: #C3ECFF;
+  color: #10A1E6;
+}
+
+.user--2 {
   background: #FFE7CF;
   color: #D6802D;
 }
 
-.user--capthonkers {
-  background: #B7EFCE;
-  color: #0C6F35;
-}
-
-.user--wickedhelmet {
+.user--3 {
   background: #ECC1CF;
   color: #AD2852;
 }
 
-.user--demelza {
-  background: #C3ECFF;
-  color: #10A1E6;
+.user--4 {
+  background: #B7EFCE;
+  color: #0C6F35;
 }
 
 .user .name {
   text-transform: uppercase;
   font-family: 'Caveat Brush', sans-serif;
   font-size: 3em;
-  line-height: 2em;
+  line-height: 2.5em;
   text-shadow: 0 4px 0 rgba(255, 255, 255, .15);
 }
 
 .user .name small {
   margin-left: .5em;
-  margin-top: -.25em;
+  padding: .25em 0;
 
   font-family: 'Coming Soon', sans-serif;
   color: rgba(0, 0, 0, .5);
@@ -64,7 +68,7 @@
   transform: rotate(2.5deg);
 }
 
-.polaroid__wrap:nth-of-type(odd) .polaroid {
+.user:nth-of-type(odd) .polaroid {
   transform: rotate(-2.5deg);
 }
 

@@ -55,34 +55,14 @@ function game() {
       socket.emit('newUser', username);
     });
 
-    socket.on('newWord', function(data){
-      readyToggleEl.checked = false;
-      wordEl.innerHTML = data.word;
-    });
-
     socket.on('users', function (users) {
-
-      var players = [
-        'demelza', 'nessa', 'wickedhelmet', 'capthonkers'
-      ];
-
-      var output = '<ul class="users">';
-      console.log(socket);
       for (var i = 0; i < users.length; i++) {
-        var player = players[i];
-
         var user = users[i];
-        output += '<li class="user user--' + player + ' grid-block">';
-        output += '<div class="polaroid__wrap grid-block shrink">' +
-                  '<div class="polaroid">' +
-                    '<img class="polaroid__image" src="assets/' + player + '.gif"/>' +
-                  '</div>' +
-                  '</div>';
-        output += '<span class="name grid-block">' + user + (user === currentUsername ? '<small>You!</small>' : '') + '</span>';
-        output += '</li>';
+
+        var userEl = document.querySelector('.user--' + (i + 1));
+        userEl.classList.remove('user--waiting');
+        userEl.querySelector('.name').innerHTML = '' + user + (user === currentUsername ? '<small>You!</small>' : '');
       }
-      output += '</ul>';
-      document.querySelector('.users').innerHTML = output;
     });
 
     socket.on('info', function (text) {
@@ -128,6 +108,7 @@ function game() {
     function startRecording(recorder) {
       console.log('Recording...');
       recordButtonEl.innerHTML = 'Recording...';
+      recordButtonEl.classList.add('button--record--recording');
 
       recorder.record();
     }
@@ -135,6 +116,7 @@ function game() {
     function stopRecording(recorder) {
       console.log('Stopped recording.');
       recordButtonEl.innerHTML = 'Record!';
+      recordButtonEl.classList.remove('button--record--recording');
 
       recorder.stop();
       recorder.exportWAV(handleAudio);
@@ -158,8 +140,8 @@ function game() {
 }
 
 function lobby() {
-  var joinRoomInput = document.querySelector('.join-room__input');
-  var joinRoomButton = document.querySelector('.join-room__button');
+  var joinRoomInput = document.querySelector('.input--join-room');
+  var joinRoomButton = document.querySelector('.button--join-room');
   joinRoomButton.setAttribute('disabled', true);
   joinRoomInput.addEventListener('input', function(event) {
     var roomInput = event.target.value;

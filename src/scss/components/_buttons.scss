@@ -1,0 +1,46 @@
+// _buttons.scss
+
+@import "components/button";
+// @import "components/button-group";
+
+.button {
+  border-radius: 5px;
+}
+
+.button--record {
+  background: #F52525;
+  font-size: 3em;
+  margin-bottom: 0;
+
+  border-radius: 0;
+  border-top-right-radius: 10px;
+  border-top-left-radius: 10px;
+}
+
+.button--record:focus,
+.button--record:hover,
+.button--record--recording {
+  background: #670404;
+}
+
+#ready {
+  display: none;
+}
+
+#ready + label {
+  margin: 0;
+  padding: 1em;
+
+  text-align: center;
+  font-size: 1.5em;
+
+  border-bottom-right-radius: 10px;
+  border-bottom-left-radius: 10px;
+
+  background: grey;
+}
+
+#ready:checked + label {
+  background: green;
+  color: white;
+}

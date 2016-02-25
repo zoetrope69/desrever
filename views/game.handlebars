@@ -10,18 +10,50 @@
 
     <ul class="info"></ul>
 
-    <button class="button large expand">Ready up</button>
-    <button class="button large expand success">Start game</button>
+    <!-- <button class="button--ready-up button large expand">Ready up</button> -->
+    <!-- <button class="button--start-game button large expand success">Start game</button> -->
 
-    <div style="display: none">
-      <h4 class="word"></h4>
-      <button class="button--record">Record</button>
+    <button class="button--record button expand">Record</button>
+    <input class="checkbox--record" type="checkbox" id="ready" name="ready"/>
+    <label for="ready">Send to everyone else</label>
 
-      <label for="ready">I'm Ready</label>
-      <input class="checkbox--record" type="checkbox" id="ready" name="ready"/>
-    </div>
   </div>
   <div class="grid-block vertical" style="padding: 0;">
-    <div class="users"></div>
+    <div class="users">
+      <ul class="users">
+        <li class="user user--1 user--waiting grid-block">
+          <div class="polaroid__wrap grid-block shrink">
+            <div class="polaroid">
+              <img class="polaroid__image" src="assets/1.gif">
+            </div>
+          </div>
+          <span class="name grid-block"><small>Waiting for player...</small></span>
+        </li>
+        <li class="user user--2 user--waiting grid-block">
+          <div class="polaroid__wrap grid-block shrink">
+            <div class="polaroid">
+              <img class="polaroid__image" src="assets/2.gif">
+            </div>
+          </div>
+          <span class="name grid-block"><small>Waiting for player...</small></span>
+        </li>
+        <li class="user user--3 user--waiting grid-block">
+          <div class="polaroid__wrap grid-block shrink">
+            <div class="polaroid">
+              <img class="polaroid__image" src="assets/3.gif">
+            </div>
+          </div>
+          <span class="name grid-block"><small>Waiting for player...</small></span>
+        </li>
+        <li class="user user--4 user--waiting grid-block">
+          <div class="polaroid__wrap grid-block shrink">
+            <div class="polaroid">
+              <img class="polaroid__image" src="assets/4.gif">
+            </div>
+          </div>
+          <span class="name grid-block"><small>Waiting for player...</small></span>
+        </li>
+      </ul>
+    </div>
   </div>
 </div>
