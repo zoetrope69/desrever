@@ -108,21 +108,23 @@ io.on('connection', function(socket){
   socket.on('disconnect', function(){
     console.log(socket.username + ' disconnected');
 
-    // remove username from current users list in room
-    var currentUsers = rooms[socket.room].users;
-    var index = currentUsers.indexOf(socket.username);
-    // if user is in the array
-    if (index > -1) {
-      // removes user from array
-      rooms[socket.room].users.splice(index, 1);
+    if (rooms[socket.room]) {
+      // remove username from current users list in room
+      var currentUsers = rooms[socket.room].users;
+      var index = currentUsers.indexOf(socket.username);
+      // if user is in the array
+      if (index > -1) {
+        // removes user from array
+        rooms[socket.room].users.splice(index, 1);
+      }
+      var users = rooms[socket.room].users;
+
+      // update username list on everyone's client
+      io.sockets.in(socket.room).emit('users', users, socket.username);
+
+      // send some info about what happened
+      socket.broadcast.in(socket.room).emit('info', socket.username + ' has disconnected');
     }
-    var users = rooms[socket.room].users;
-
-    // update username list on everyone's client
-    io.sockets.in(socket.room).emit('users', users, socket.username);
-
-    // send some info about what happened
-    socket.broadcast.in(socket.room).emit('info', socket.username + ' has disconnected');
   });
 
 });
