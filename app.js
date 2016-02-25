@@ -92,6 +92,9 @@ io.on('connection', function(socket){
     rooms[socket.room].users.push(username);
     var users = rooms[socket.room].users;
 
+    // assign new word
+    newWord(socket);
+
     // update username list on everyone's client
     io.sockets.in(socket.room).emit('users', users);
 
