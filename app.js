@@ -22,7 +22,9 @@ app.set('view engine', 'handlebars');
 
 // every request we get
 app.get('/', function (req, res) {
-  var room = `${randomWord()}-${randomWord()}-${randomWord()}`.split('').reverse().join('');
+  var newWord = randomWord();
+  var newWordReversed = newWord.split('').reverse().join('');
+  var room = `${newWord}-${newWordReversed}`;
   rooms[room] = { users: [] };
   res.render('home', { room });
 });
