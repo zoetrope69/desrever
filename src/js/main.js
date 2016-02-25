@@ -29,6 +29,21 @@ function game() {
     var recordButtonEl = document.querySelector('.button--record');
     var readyToggleEl = document.querySelector('.checkbox--record');
     var wordEl = document.querySelector('.word');
+    var roomUrlEl = document.querySelector('.room-url__url');
+    var copiedToClipboardEl = document.querySelector('.room-url__message');
+
+    // when clicking into the room url textarea select and copy to clipboard
+    roomUrlEl.addEventListener('click', function(){
+      roomUrlEl.select();
+
+      var successfulCopy = document.execCommand('copy');
+      if (successfulCopy){
+        copiedToClipboardEl.classList.remove('room-url__message--hidden');
+        setTimeout(function() {
+          copiedToClipboardEl.classList.add('room-url__message--hidden');
+        }, 1000);
+      }
+    });
 
     socket.on('connect', function(){
       var room = window.location.pathname.split('/')[1];

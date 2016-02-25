@@ -1,0 +1,51 @@
+// _roomUrl.scss
+
+.room-url {
+  position: relative;
+  margin-top: .5em;
+}
+
+.room-url__instruction {
+  display: block;
+  margin-top: 1.5em;
+
+  font-size: 1.5em;
+  text-align: center;
+}
+
+.room-url__url {
+  text-align: center;
+  padding: .5em .5em 0;
+  line-height: .5em;
+  margin-top: .25em;
+  font-size: 2em;
+
+  border-radius: 2px;
+  background: #EFEFEF;
+
+  resize: none;
+}
+
+.room-url__url::selection {}
+
+.room-url__message {
+  display: block;
+  position: absolute;
+  top: -5%;
+  left: 25%;
+  margin: 0 auto;
+  padding: .5em;
+  width: 50%;
+
+  font-size: 1em;
+  font-weight: 700;
+  text-align: center;
+
+  background: white;
+
+  transition: opacity .33s;
+}
+
+.room-url__message--hidden {
+  opacity: 0;
+}
