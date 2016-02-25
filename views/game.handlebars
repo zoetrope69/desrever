@@ -1,48 +1,27 @@
-<div class="grid-block">
-<div class="grid-container">
-  <h1>{{room}}</h1>
-  <h2>we give them a unique url to share and wait for new people to join</h2>
+<div class="medium-up-2 grid-frame">
+  <div class="grid-block vertical small-up-4">
+    <h1>{{room}}</h1>
 
-  <div class="grid-block">
-    <div class="grid-block">
-      <img src="http://placecage.com/100/100" style="border-radius: 50%"/>
-    </div>
-    <div class="grid-block">
-    <label>
-      whats your name what your number girl
-      <span class="inline-label">
-        <input type="search" placeholder="Peter Jones">
-      </span>
+    <label class="room-url">
+      <span class="room-url__instruction">Invite your friends with this URL!</span>
+      <span class="room-url__message room-url__message--hidden">Copied URL to clipboard!</span>
+      <textarea class="room-url__url">http:{{host}}/{{room}}</textarea>
     </label>
+
+    <ul class="info"></ul>
+
+    <button class="button large expand">Ready up</button>
+    <button class="button large expand success">Start game</button>
+
+    <div style="display: none">
+      <h4 class="word"></h4>
+      <button class="button--record">Record</button>
+
+      <label for="ready">I'm Ready</label>
+      <input class="checkbox--record" type="checkbox" id="ready" name="ready"/>
     </div>
   </div>
-
-  you need at least 2 people to play you loner
-
-  <label class="room-url">
-    <span class="room-url__instruction">Invite your friends with this URL!</span>
-    <span class="room-url__message room-url__message--hidden">Copied URL to clipboard!</span>
-    <textarea class="room-url__url">http://localhost:3000/{{room}}</textarea>
-  </label>
-
-  <hr />
-
-  <ul class="info"></ul>
-  <div class="users"></div>
-
-  <p>im ready to play!</p>
-  <input type="checkbox" />
-
-  <button style="button expand success" type="button">Start game</button>
-
-  <hr />
-
-  <h4 class="word"></h4>
-  <button class="button--record">Record</button>
-
-  <label for="ready">I'm Ready</label>
-  <input class="checkbox--record" type="checkbox" id="ready" name="ready"/>
-
-</div>
-</div>
+  <div class="grid-block vertical" style="padding: 0;">
+    <div class="users"></div>
+  </div>
 </div>

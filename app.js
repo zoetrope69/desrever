@@ -36,7 +36,7 @@ app.get('/:room', function (req, res) {
   // is there a room
   // send over the users to the room
 
-  res.render('game', { room });
+  res.render('game', { room, host: 'http://localhost:'+port });
 });
 
 // every request we get
@@ -81,6 +81,9 @@ io.on('connection', function(socket){
     // send everyone but current user the audio
     socket.broadcast.in(socket.room).emit('recieveAudio', socket.username, socket.word, data);
 
+    // send some info about what happened
+    socket.broadcast.in(socket.room).emit('info', socket.username + ' sent some audio');
+
     // finished with old word so assign new word
     newWord(socket);
   });
@@ -98,7 +101,7 @@ io.on('connection', function(socket){
     newWord(socket);
 
     // update username list on everyone's client
-    io.sockets.in(socket.room).emit('users', users, socket.username);
+    io.sockets.in(socket.room).emit('users', users);
 
     // send some info about what happened
     socket.broadcast.in(socket.room).emit('info', socket.username + ' has connected');
@@ -120,7 +123,7 @@ io.on('connection', function(socket){
       var users = rooms[socket.room].users;
 
       // update username list on everyone's client
-      io.sockets.in(socket.room).emit('users', users, socket.username);
+      io.sockets.in(socket.room).emit('users', users);
 
       // send some info about what happened
       socket.broadcast.in(socket.room).emit('info', socket.username + ' has disconnected');

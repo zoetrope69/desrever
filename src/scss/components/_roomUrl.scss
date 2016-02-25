@@ -7,7 +7,6 @@
 
 .room-url__instruction {
   display: block;
-  margin-top: 1.5em;
 
   font-size: 1.5em;
   text-align: center;
@@ -15,10 +14,9 @@
 
 .room-url__url {
   text-align: center;
-  padding: .5em .5em 0;
+  padding: 1em 1em 0;
   line-height: .5em;
-  margin-top: .25em;
-  font-size: 2em;
+  font-size: 1.5em;
 
   border-radius: 2px;
   background: #EFEFEF;
@@ -31,13 +29,12 @@
 .room-url__message {
   display: block;
   position: absolute;
-  top: -5%;
-  left: 25%;
+  top: -10%;
   margin: 0 auto;
   padding: .5em;
-  width: 50%;
+  width: 100%;
 
-  font-size: 1em;
+  font-size: 1.25em;
   font-weight: 700;
   text-align: center;
 

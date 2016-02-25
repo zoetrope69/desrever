@@ -24,6 +24,7 @@ $foundation-version: '1.2.0';
   "global";
 
 // Components
+@import "components/users";
 @import "components/roomUrl";
 @import "components/iconic";
 // @import "components/action-sheet";
@@ -46,5 +47,5 @@ $foundation-version: '1.2.0';
 // @import "components/switch";
 // @import "components/tabs";
 // @import "components/accordion";
-@import "components/typography";
+@import "components/type";
 @import "components/utilities";

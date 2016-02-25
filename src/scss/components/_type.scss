@@ -1,0 +1,19 @@
+// _typography.scss
+@import "components/typography";
+
+body{
+  font-family: 'Coming Soon', sans-serif;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: 'Caveat Brush', sans-serif;
+}
+
+h1 {
+  text-transform: uppercase;
+  color: #212121;
+}
+
+h2{
+  color: #484848;
+}

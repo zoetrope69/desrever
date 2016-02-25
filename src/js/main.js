@@ -12,7 +12,7 @@ function makeId() {
     text += possible.charAt(Math.floor(Math.random() * possible.length));
   }
 
-  return text;
+  return 'Player-'+text;
 }
 
 function game() {
@@ -31,6 +31,7 @@ function game() {
     var wordEl = document.querySelector('.word');
     var roomUrlEl = document.querySelector('.room-url__url');
     var copiedToClipboardEl = document.querySelector('.room-url__message');
+    var currentUsername = '';
 
     // when clicking into the room url textarea select and copy to clipboard
     roomUrlEl.addEventListener('click', function(){
@@ -49,7 +50,9 @@ function game() {
       var room = window.location.pathname.split('/')[1];
       socket.emit('room', room);
 
-      socket.emit('newUser', makeId());
+      var username = makeId();
+      currentUsername = username;
+      socket.emit('newUser', username);
     });
 
     socket.on('newWord', function(data){
@@ -57,11 +60,26 @@ function game() {
       wordEl.innerHTML = data.word;
     });
 
-    socket.on('users', function (users, you) {
-      var output = '<h2>Connected users:</h2><ul>';
+    socket.on('users', function (users) {
+
+      var players = [
+        'demelza', 'nessa', 'wickedhelmet', 'capthonkers'
+      ];
+
+      var output = '<ul class="users">';
+      console.log(socket);
       for (var i = 0; i < users.length; i++) {
+        var player = players[i];
+
         var user = users[i];
-        output += '<li>'+ user + (user === you ? '<small>You!</small>' : '') + '</li>';
+        output += '<li class="user user--' + player + ' grid-block">';
+        output += '<div class="polaroid__wrap grid-block shrink">' +
+                  '<div class="polaroid">' +
+                    '<img class="polaroid__image" src="assets/' + player + '.gif"/>' +
+                  '</div>' +
+                  '</div>';
+        output += '<span class="name grid-block">' + user + (user === currentUsername ? '<small>You!</small>' : '') + '</span>';
+        output += '</li>';
       }
       output += '</ul>';
       document.querySelector('.users').innerHTML = output;
