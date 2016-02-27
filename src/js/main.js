@@ -8,7 +8,13 @@ var ready = function() {
   navigator.getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia;
   window.URL = window.URL || window.webkitURL || window.mozURL;
 
-  console.log('navigator.getUserMedia ' + (navigator.getUserMedia ? 'available.' : 'not present!'));
+  if (!window.AudioContext) {
+    utils.displayError('No web audio support in this browser! (No AudioContext)');
+  }
+
+  if (!navigator.getUserMedia) {
+    utils.displayError('Can\'t access microphone. (No navigator.getUserMedia support)');
+  }
 
   // check if there's a room specified in the url
   var room = window.location.pathname.split('/')[1];
