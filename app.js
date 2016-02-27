@@ -1,3 +1,4 @@
+"use strict";
 var express = require('express');
 var app = express();
 var exphbs  = require('express-handlebars');
@@ -7,6 +8,9 @@ var io = require('socket.io')(server);
 var randomWord = require('random-word');
 
 var rooms = {};
+
+//use player class
+var Player = require('./objects/Player');
 
 // server on port
 var port = process.env.PORT || 3000;
@@ -79,10 +83,10 @@ io.on('connection', function(socket){
   // when sent audio to server
   socket.on('sendAudio', function(data){
     // send everyone but current user the audio
-    socket.broadcast.in(socket.room).emit('recieveAudio', socket.username, socket.word, data);
+    socket.broadcast.in(socket.room).emit('recieveAudio', socket.user.username, socket.word, data);
 
     // send some info about what happened
-    socket.broadcast.in(socket.room).emit('info', socket.username + ' sent some audio');
+    socket.broadcast.in(socket.room).emit('info', socket.user.username + ' sent some audio');
 
     // finished with old word so assign new word
     newWord(socket);
@@ -90,12 +94,18 @@ io.on('connection', function(socket){
 
   socket.on('newUser', function(username){
     // assign username to socket
-    socket.username = username;
+    socket.user = new Player(username);
 
     // add username to current users list in room
     rooms[socket.room] = rooms[socket.room] || { users: [] }; // default to empty if no users
-    rooms[socket.room].users.push(username);
+
+    var playerNo = rooms[socket.room].users.length + 1;
+    socket.user.setID(playerNo);
+
+    rooms[socket.room].users.push(socket.user);
     var users = rooms[socket.room].users;
+
+    console.log(rooms[socket.room]);
 
     // assign new word
     newWord(socket);
@@ -104,17 +114,26 @@ io.on('connection', function(socket){
     io.sockets.in(socket.room).emit('users', users);
 
     // send some info about what happened
-    socket.broadcast.in(socket.room).emit('info', socket.username + ' has connected');
+    socket.broadcast.in(socket.room).emit('info', socket.user.username + ' has connected');
+  });
+
+  socket.on('updateUser', function(username){
+    var index = rooms[socket.room].users.indexOf(socket.user);
+    rooms[socket.room].users[index].username = username;
+    var users = rooms[socket.room].users;
+
+    // update username list on everyone's client
+    io.sockets.in(socket.room).emit('users', users);
   });
 
   // if user disconnects
   socket.on('disconnect', function(){
-    console.log(socket.username + ' disconnected');
+    console.log(socket.user.username + ' disconnected');
 
     if (rooms[socket.room]) {
       // remove username from current users list in room
       var currentUsers = rooms[socket.room].users;
-      var index = currentUsers.indexOf(socket.username);
+      var index = currentUsers.indexOf(socket.user);
       // if user is in the array
       if (index > -1) {
         // removes user from array
@@ -126,7 +145,7 @@ io.on('connection', function(socket){
       io.sockets.in(socket.room).emit('users', users);
 
       // send some info about what happened
-      socket.broadcast.in(socket.room).emit('info', socket.username + ' has disconnected');
+      socket.broadcast.in(socket.room).emit('info', socket.user.username + ' has disconnected');
     }
   });
 

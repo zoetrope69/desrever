@@ -46,22 +46,34 @@ function game() {
       }
     });
 
+    document.querySelector('.test').oninput=function(w){
+      currentUsername = this.value;
+      console.log(currentUsername);
+      socket.emit('updateUser', currentUsername);
+    };
+
     socket.on('connect', function(){
       var room = window.location.pathname.split('/')[1];
       socket.emit('room', room);
 
-      var username = makeId();
+      var username = makeId();//prompt("Please enter a name", "");
       currentUsername = username;
       socket.emit('newUser', username);
     });
 
     socket.on('users', function (users) {
+      for (var i = 0; i < 4; i++) {
+        var userEl = document.querySelector('.user--' + (i + 1));
+        if(!userEl.classList.contains('user--waiting')){
+          userEl.classList.toggle('user--waiting');
+          userEl.querySelector('.name').innerHTML = '<small>Waiting for player...</small>';
+        }
+      }
       for (var i = 0; i < users.length; i++) {
         var user = users[i];
-
         var userEl = document.querySelector('.user--' + (i + 1));
         userEl.classList.remove('user--waiting');
-        userEl.querySelector('.name').innerHTML = '' + user + (user === currentUsername ? '<small>You!</small>' : '');
+        userEl.querySelector('.name').innerHTML = '' + user.username + (user.username === currentUsername ? '<small>You!</small>' : '');
       }
     });
 
@@ -163,6 +175,7 @@ function lobby() {
 }
 
 function ready() {
+
   try {
     window.AudioContext = window.AudioContext || window.webkitAudioContext || window.mozAudioContext;
     navigator.getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia;
