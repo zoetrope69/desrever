@@ -17,7 +17,6 @@ var makeId = function() {
   return 'Player-'+text;
 }
 
-
 function getRect(x, y, width, height, color) {
   return createEl('rect', {
     x: x,

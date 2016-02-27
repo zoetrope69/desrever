@@ -10,6 +10,7 @@ var game = function() {
   });
 
   function startUserMedia(stream) {
+    var maxPlayers = 4;
     var socket = io.connect();
 
     try {
@@ -29,7 +30,12 @@ var game = function() {
     var roomUrlEl = document.querySelector('.room-url__url');
     var copiedToClipboardEl = document.querySelector('.room-url__message');
     var waveEl = document.querySelector('.wave');
-    var currentUsername = '';
+    var currentPlayerName = '';
+
+    document.querySelector('.test').oninput = function(event) {
+      currentPlayerName = event.target.value;
+      socket.emit('updatePlayer', currentPlayerName);
+    };
 
     // when clicking into the room url textarea select and copy to clipboard
     roomUrlEl.addEventListener('click', function(){
@@ -48,18 +54,24 @@ var game = function() {
       var room = window.location.pathname.split('/')[1];
       socket.emit('room', room);
 
-      var username = utils.makeId();
-      currentUsername = username;
-      socket.emit('newUser', username);
+      var playerName = utils.makeId();
+      currentPlayerName = playerName;
+      socket.emit('newPlayer', playerName);
     });
 
-    socket.on('users', function (users) {
-      for (var i = 0; i < users.length; i++) {
-        var user = users[i];
+    socket.on('players', function (players) {
+      if (players) {
+        for (var i = 0; i < maxPlayers; i++) {
+          var player = players[i];
+          var playerEl = document.querySelector('.player--' + (i + 1));
 
-        var userEl = document.querySelector('.user--' + (i + 1));
-        userEl.classList.remove('user--waiting');
-        userEl.querySelector('.name').innerHTML = '' + user + (user === currentUsername ? '<small>You!</small>' : '');
+          if(!player) {
+            playerEl.classList.add('player--waiting');
+            playerEl.querySelector('.player__name').innerHTML = '<small>Waiting for player...</small>';
+          } else {
+            playerEl.classList.remove('player--waiting');
+            playerEl.querySelector('.player__name').innerHTML = '' + player.name + (player.name === currentPlayerName ? '<small>You!</small>' : '');        }
+        }
       }
     });
 
@@ -69,8 +81,7 @@ var game = function() {
       document.querySelector('.info').appendChild(li);
     });
 
-    socket.on('recieveAudio', function(username, word, blob) {
-      console.log(username, word, blob);
+    socket.on('recieveAudio', function(playerName, word, blob) {
       reverseAudio(blob);
     });
 
@@ -102,7 +113,6 @@ var game = function() {
        source.start(0);
 
        var waveSVG = utils.waveSVG(buffer, 500, 100);
-       waveEl.innerHTML = '';
        waveEl.appendChild(waveSVG);
      });
     }
@@ -130,6 +140,8 @@ var game = function() {
       recordButtonEl.classList.remove('button--record--recording');
 
       window.clearTimeout(recordingTimer);
+
+      waveEl.innerHTML = '';
 
       recorder.stop();
       recorder.exportWAV(handleAudio);

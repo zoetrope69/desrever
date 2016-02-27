@@ -1,11 +1,11 @@
-// _users.scss
+// _players.scss
 
-.users {
+.players {
   margin: 0;
   padding: 0;
 }
 
-.user {
+.player {
   max-height: 25vh;
   list-style: none;
   padding: 1em 1.5em;
@@ -13,31 +13,31 @@
   background: #E6E3DA;
 }
 
-.user--waiting {
+.player--waiting {
   -webkit-filter: grayscale(1);
 }
 
-.user--1 {
+.player--1 {
   background: #C3ECFF;
   color: #10A1E6;
 }
 
-.user--2 {
+.player--2 {
   background: #FFE7CF;
   color: #D6802D;
 }
 
-.user--3 {
+.player--3 {
   background: #ECC1CF;
   color: #AD2852;
 }
 
-.user--4 {
+.player--4 {
   background: #B7EFCE;
   color: #0C6F35;
 }
 
-.user .name {
+.player__name {
   text-transform: uppercase;
   font-family: 'Caveat Brush', sans-serif;
   font-size: 3em;
@@ -45,7 +45,7 @@
   text-shadow: 0 4px 0 rgba(255, 255, 255, .15);
 }
 
-.user .name small {
+.player__name small {
   margin-left: .5em;
   padding: .25em 0;
 
@@ -68,7 +68,7 @@
   transform: rotate(2.5deg);
 }
 
-.user:nth-of-type(odd) .polaroid {
+.player:nth-of-type(odd) .polaroid {
   transform: rotate(-2.5deg);
 }
 

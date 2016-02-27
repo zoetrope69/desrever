@@ -10,7 +10,7 @@ var front = function () {
     var hasUrl = roomInput.indexOf(window.location.origin) > -1;
     var hasRoom = roomInput.length > window.location.origin.length + 1;
 
-    // if a valid url and has a room specified then let the user go to that link
+    // if a valid url and has a room specified then let the player go to that link
     if (hasUrl && hasRoom) {
       enableButton();
     } else {
