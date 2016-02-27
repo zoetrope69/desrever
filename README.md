@@ -21,5 +21,6 @@
 + sass
 + foundation apps framework
 + google fonts (Caveat Brush, Coming Soon)
++ browserify
 + gulp (+ browsersync)
 + aesthetic (and assets) unabashedly ripped off from the [knights and bikes game](https://www.kickstarter.com/projects/foamsword/knights-and-bikes)
