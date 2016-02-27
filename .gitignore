@@ -4,3 +4,7 @@ npm-debug.log
 
 # built files
 dist/
+
+
+#
+.DS_Store
