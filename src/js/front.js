@@ -31,4 +31,4 @@ var front = function () {
   }
 };
 
-module.expots = front;
+module.exports = front;
