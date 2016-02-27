@@ -8,19 +8,32 @@
 }
 
 .button--record {
-  background: #F52525;
+  position: relative;
+  background: darken(#F52525, 15%);
   font-size: 3em;
   margin-bottom: 0;
 
   border-radius: 0;
   border-top-right-radius: 10px;
   border-top-left-radius: 10px;
+
+  transition: background .15s;
 }
 
-.button--record:focus,
 .button--record:hover,
+.button--record:focus {
+  background: darken(#F52525, 15%);
+}
+
+.button--record--recording:focus,
+.button--record--recording:hover,
 .button--record--recording {
-  background: #670404;
+  background: #169A42;
+}
+
+.button--record__text {
+  position: relative;
+  z-index: 10;
 }
 
 #ready {

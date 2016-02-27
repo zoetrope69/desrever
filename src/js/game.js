@@ -23,10 +23,12 @@ var game = function() {
     }
 
     var recordButtonEl = document.querySelector('.button--record');
+    var recordButtonTextEl = document.querySelector('.button--record__text');
     var readyToggleEl = document.querySelector('.checkbox--record');
     var wordEl = document.querySelector('.word');
     var roomUrlEl = document.querySelector('.room-url__url');
     var copiedToClipboardEl = document.querySelector('.room-url__message');
+    var waveEl = document.querySelector('.wave');
     var currentUsername = '';
 
     // when clicking into the room url textarea select and copy to clipboard
@@ -98,21 +100,36 @@ var game = function() {
        source.buffer = buffer;
        source.connect(audioContext.destination);
        source.start(0);
+
+       var waveSVG = utils.waveSVG(buffer, 500, 100);
+       waveEl.innerHTML = '';
+       waveEl.appendChild(waveSVG);
      });
     }
 
+    var recordingTimer;
+
     function startRecording(recorder) {
       console.log('Recording...');
-      recordButtonEl.innerHTML = 'Recording...';
+      recordButtonTextEl.innerHTML = 'Recording...';
       recordButtonEl.classList.add('button--record--recording');
+
+      waveEl.innerHTML = '<div class="wave__recording"></div>';
+
+      recordingTimer = window.setTimeout(function() {
+        console.log('memees');
+        stopRecording(recorder);
+      }, 5 * 1000); // in 5 secs stop recording
 
       recorder.record();
     }
 
     function stopRecording(recorder) {
       console.log('Stopped recording.');
-      recordButtonEl.innerHTML = 'Record!';
+      recordButtonTextEl.innerHTML = 'Record!';
       recordButtonEl.classList.remove('button--record--recording');
+
+      window.clearTimeout(recordingTimer);
 
       recorder.stop();
       recorder.exportWAV(handleAudio);

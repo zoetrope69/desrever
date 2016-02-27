@@ -24,6 +24,7 @@ $foundation-version: '1.2.0';
   "global";
 
 // Components
+@import "components/wave";
 @import "components/users";
 @import "components/roomUrl";
 @import "components/iconic";

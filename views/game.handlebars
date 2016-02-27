@@ -1,5 +1,5 @@
 <div class="medium-up-2 grid-frame">
-  <div class="grid-block vertical small-up-4">
+  <div class="grid-block vertical">
     <h1>{{room}}</h1>
 
     <label class="room-url">
@@ -13,7 +13,10 @@
     <!-- <button class="button--ready-up button large expand">Ready up</button> -->
     <!-- <button class="button--start-game button large expand success">Start game</button> -->
 
-    <button class="button--record button expand">Record</button>
+    <button class="button--record button expand">
+      <span class="button--record__text">Record</span>
+      <div class="wave"></div>
+    </button>
     <input class="checkbox--record" type="checkbox" id="ready" name="ready"/>
     <label for="ready">Send to everyone else</label>
 

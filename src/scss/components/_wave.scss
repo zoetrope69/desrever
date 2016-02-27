@@ -1,0 +1,48 @@
+// _wave.scss
+
+$waveHeight: 100px;
+$waveColour: darken(#F52525, 25%);
+
+@keyframes waveMove {
+  from {
+    width: 0%;
+  }
+}
+
+.wave {
+  z-index: 0;
+  position: absolute;
+  top: 20px; left: 0; right: 0;
+  height: $waveHeight;
+}
+
+.wave__recording,
+.wave svg {
+  width: 100%;
+  height: 100%;
+}
+
+.wave__recording {
+  margin: (($waveHeight / 2) - 1) 0;
+  height: 1px;
+  width: 100%;
+  background: $waveColour;
+
+  animation: waveMove 5s linear forwards;
+
+  transition: background .15s;
+}
+
+.wave svg rect {
+  fill: $waveColour;
+
+  transition: fill .15s;
+}
+
+.button--record--recording .wave__recording {
+  background: darken(#169A42, 10%);
+}
+
+.button--record--recording svg rect {
+  fill: darken(#169A42, 10%);
+}
