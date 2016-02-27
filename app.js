@@ -47,11 +47,9 @@ app.get('/game', function (req, res) {
 
 var words = [
   { id: 1, word: 'shaggy', points: 200 },
+  { id: 2, word: 'boogie butts', points: 200 },
   { id: 3, word: 'yes', points: 300 },
-  { id: 5, word: 'poo', points: 250 },
-  { id: 8, word: 'maloy', points: 100 },
-  { id: 7, word: 'hello', points: 250 },
-  { id: 10, word: 'oatibix', points: 100 }
+  { id: 4, word: 'oatibix', points: 100 }
 ];
 
 // generate a new word
