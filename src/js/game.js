@@ -48,7 +48,7 @@ var game = function() {
 
     document.querySelector('.test').oninput = function(event) {
       currentPlayerName = event.target.value;
-      socket.emit('updatePlayer', currentPlayerName);
+      socket.emit('updatePlayer', { name: currentPlayerName });
     };
 
     // when clicking into the room url textarea select and copy to clipboard
@@ -83,6 +83,13 @@ var game = function() {
             playerEl.classList.add('player--waiting');
             playerEl.querySelector('.player__name').innerHTML = '<small>Waiting for player...</small>';
           } else {
+
+            if (player.speaking) {
+              playerEl.classList.add('player--speaking');
+            } else {
+              playerEl.classList.remove('player--speaking');
+            }
+
             playerEl.classList.remove('player--waiting');
             playerEl.querySelector('.player__name').innerHTML = '' + player.name + (player.name === currentPlayerName ? '<small>You!</small>' : '');        }
         }

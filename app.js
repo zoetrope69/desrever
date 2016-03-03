@@ -115,9 +115,19 @@ io.on('connection', function(socket){
     socket.broadcast.in(socket.room).emit('info', socket.player.name + ' has connected');
   });
 
-  socket.on('updatePlayer', function(name){
+  socket.on('updatePlayer', function(data){
+    data = data || {};
+
     var index = rooms[socket.room].players.indexOf(socket.player);
-    rooms[socket.room].players[index].name = name;
+    var player = rooms[socket.room].players[index];
+
+    // get current player
+    for(var property in data){
+      if (player.hasOwnProperty(property)){
+        player[property] = data[property];
+      }
+    }
+
     var players = rooms[socket.room].players;
 
     // update playerName list on everyone's client

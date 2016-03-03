@@ -66,10 +66,15 @@
   box-shadow: -.25em .25em 0 rgba(0,0,0,0.15);
 
   transform: rotate(2.5deg);
+  transition: transform .1s;
 }
 
 .player:nth-of-type(odd) .polaroid {
   transform: rotate(-2.5deg);
+}
+
+.player--speaking .polaroid {
+  background: red;
 }
 
 .polaroid__image {
