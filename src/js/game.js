@@ -3,6 +3,7 @@ var game = function() {
   var io = require('socket.io-client');
   var debounce = require('underscore').debounce;
   var utils = require('./utils');
+  var hark = require('hark');
 
   navigator.getUserMedia({ audio: true }, startUserMedia, function(e) {
     utils.displayError('Cant get user media');
@@ -12,6 +13,19 @@ var game = function() {
   function startUserMedia(stream) {
     var maxPlayers = 4;
     var socket = io.connect();
+
+    var options = {};
+    var speechEvents = hark(stream, options);
+
+    speechEvents.on('speaking', function() {
+      console.log('speaking');
+      socket.emit('updatePlayer', { speaking: true });
+    });
+
+    speechEvents.on('stopped_speaking', function() {
+      console.log('stopped_speaking');
+      socket.emit('updatePlayer', { speaking: false });
+    });
 
     try {
       var audioContext = new AudioContext();
