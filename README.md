@@ -24,3 +24,4 @@
 + browserify
 + gulp (+ browsersync)
 + aesthetic (and assets) unabashedly ripped off from the [knights and bikes game](https://www.kickstarter.com/projects/foamsword/knights-and-bikes)
++ Noise reduction https://github.com/ericschmidt/noise-reduction
