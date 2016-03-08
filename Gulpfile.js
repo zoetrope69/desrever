@@ -35,10 +35,16 @@ gulp.task('scripts', function () {
   return b.bundle()
     .pipe(source('scripts.js'))
     .pipe(buffer())
+    .pipe(gulp.dest('dist/js'))
     .pipe(sourcemaps.init({ loadMaps: true }))
     .pipe(uglify())
     .on('error', gutil.log)
-    .pipe(sourcemaps.write('./'))
+    .pipe(sourcemaps.write('./', {
+      sourceMappingURL: function(file) {
+        return 'http://localhost:' + (process.env.PORT || 3000) + '/js/' + file.relative + '.min.map';
+      }
+    }))
+    .pipe(rename({ suffix: '.min' }))
     .pipe(gulp.dest('dist/js'));
 });
 
