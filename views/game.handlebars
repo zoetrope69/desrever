@@ -20,7 +20,10 @@
     <input class="checkbox--record" type="checkbox" id="ready" name="ready"/>
     <label for="ready">Send to everyone else</label>
 
-    <input class="test"></input>
+    <input class="inputName"></input>
+    <label for="readyUp">Ready?</label>
+    <input class="readyUp" type="checkbox" name="readyUp">
+    <button class="hide button--start_game button disabled" type="button" name="startGame" disabled>Start Game!</button>
 
   </div>
   <div class="grid-block vertical" style="padding: 0;">
@@ -33,6 +36,7 @@
             </div>
           </div>
           <span class="player__name grid-block"><small>Waiting for player...</small></span>
+          <span class='ready'></span>
         </li>
         <li class="player player--2 player--waiting grid-block">
           <div class="polaroid__wrap grid-block shrink">
@@ -41,6 +45,7 @@
             </div>
           </div>
           <span class="player__name grid-block"><small>Waiting for player...</small></span>
+          <span class='ready'></span>
         </li>
         <li class="player player--3 player--waiting grid-block">
           <div class="polaroid__wrap grid-block shrink">
@@ -49,6 +54,7 @@
             </div>
           </div>
           <span class="player__name grid-block"><small>Waiting for player...</small></span>
+          <span class='ready'></span>
         </li>
         <li class="player player--4 player--waiting grid-block">
           <div class="polaroid__wrap grid-block shrink">
@@ -57,6 +63,7 @@
             </div>
           </div>
           <span class="player__name grid-block"><small>Waiting for player...</small></span>
+          <span class='ready'></span>
         </li>
       </ul>
     </div>

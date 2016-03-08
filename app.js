@@ -90,15 +90,16 @@ io.on('connection', function(socket){
     newWord(socket);
   });
 
-  socket.on('newPlayer', function(playerName){
+  socket.on('newPlayer', function(player){
     // assign playerName to socket
-    socket.player = new Player(playerName);
+    socket.player = new Player(player);
 
     // add playerName to current players list in room
     rooms[socket.room] = rooms[socket.room] || { players: [] }; // default to empty if no players
 
-    var playerNo = rooms[socket.room].players.length + 1;
-    socket.player.setID(playerNo);
+    if(rooms[socket.room].players.length === 0){
+      socket.player.setHost(true);
+    }
 
     rooms[socket.room].players.push(socket.player);
     var players = rooms[socket.room].players;
@@ -136,9 +137,9 @@ io.on('connection', function(socket){
 
   // if player disconnects
   socket.on('disconnect', function(){
-    console.log(socket.player.name + ' disconnected');
+    if (rooms[socket.room] && rooms[socket.room].players.length) {
+      console.log(socket.player.name + ' disconnected');
 
-    if (rooms[socket.room]) {
       // remove player from current players list in room
       var currentPlayers = rooms[socket.room].players;
       var index = currentPlayers.indexOf(socket.player);

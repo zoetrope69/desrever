@@ -14,19 +14,6 @@ var game = function() {
     var maxPlayers = 4;
     var socket = io.connect();
 
-    var options = {};
-    var speechEvents = hark(stream, options);
-
-    speechEvents.on('speaking', function() {
-      console.log('speaking');
-      socket.emit('updatePlayer', { speaking: true });
-    });
-
-    speechEvents.on('stopped_speaking', function() {
-      console.log('stopped_speaking');
-      socket.emit('updatePlayer', { speaking: false });
-    });
-
     try {
       var audioContext = new AudioContext();
       console.log('Audio context set up.');
@@ -44,12 +31,30 @@ var game = function() {
     var roomUrlEl = document.querySelector('.room-url__url');
     var copiedToClipboardEl = document.querySelector('.room-url__message');
     var waveEl = document.querySelector('.wave');
-    var currentPlayerName = '';
+    var startGameEl = document.querySelector('.button--start_game');
+    var currentPlayer = {};
 
-    document.querySelector('.test').oninput = function(event) {
-      currentPlayerName = event.target.value;
-      socket.emit('updatePlayer', { name: currentPlayerName });
+    var speechEvents = hark(stream, {});
+
+    speechEvents.on('speaking', function() {
+      currentPlayer.speaking = true;
+      socket.emit('updatePlayer', currentPlayer);
+    });
+
+    speechEvents.on('stopped_speaking', function() {
+      currentPlayer.speaking = true;
+      socket.emit('updatePlayer', currentPlayer);
+    });
+
+    document.querySelector('.inputName').oninput = function(event) {
+      currentPlayer.name = event.target.value;
+      socket.emit('updatePlayer', currentPlayer);
     };
+
+    document.querySelector('.readyUp').addEventListener('click', function(event){
+      currentPlayer.ready = event.target.checked;
+      socket.emit('updatePlayer', currentPlayer);
+    });
 
     // when clicking into the room url textarea select and copy to clipboard
     roomUrlEl.addEventListener('click', function(){
@@ -68,12 +73,15 @@ var game = function() {
       var room = window.location.pathname.split('/')[1];
       socket.emit('room', room);
 
-      var playerName = utils.makeId();
-      currentPlayerName = playerName;
-      socket.emit('newPlayer', playerName);
+      var id = utils.makeId();
+      currentPlayer.id = id;
+      currentPlayer.name = id;
+      socket.emit('newPlayer', currentPlayer);
     });
 
     socket.on('players', function (players) {
+      console.log(players);
+      var playersReadyTotal = 0;
       if (players) {
         for (var i = 0; i < maxPlayers; i++) {
           var player = players[i];
@@ -84,6 +92,10 @@ var game = function() {
             playerEl.querySelector('.player__name').innerHTML = '<small>Waiting for player...</small>';
           } else {
 
+            if (currentPlayer.id === player.id) {
+              currentPlayer = player;
+            }
+
             if (player.speaking) {
               playerEl.classList.add('player--speaking');
             } else {
@@ -91,7 +103,30 @@ var game = function() {
             }
 
             playerEl.classList.remove('player--waiting');
-            playerEl.querySelector('.player__name').innerHTML = '' + player.name + (player.name === currentPlayerName ? '<small>You!</small>' : '');        }
+            playerEl.querySelector('.player__name').innerHTML = '' + player.name + (player.name === currentPlayer.name ? '<small>You!</small>' : '');
+
+
+            if (player.ready) {
+              playersReadyTotal++;
+              playerEl.querySelector('.ready').innerHTML = 'Ready!';
+            } else {
+              playerEl.querySelector('.ready').innerHTML = '';
+            }
+          }
+        }
+
+        if (currentPlayer.host) {
+          startGameEl.classList.remove('hide');
+        } else {
+          startGameEl.classList.add('hide');
+        }
+
+        if (playersReadyTotal >= 2 && playersReadyTotal === players.length) {
+          startGameEl.classList.remove('disabled');
+          startGameEl.setAttribute('disabled', false);
+        } else {
+          startGameEl.classList.add('disabled');
+          startGameEl.setAttribute('disabled', true);
         }
       }
     });
