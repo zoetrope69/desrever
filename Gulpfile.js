@@ -67,7 +67,8 @@ gulp.task('bs-reload', function () {
 /* prepare browser-sync for localhost */
 gulp.task('browser-sync', function() {
   browserSync.init(['dist/css/*.css', 'dist/js/*.js'], {
-    proxy: 'localhost:' + (process.env.PORT || 3000)
+    proxy: 'localhost:' + (process.env.PORT || 3000),
+    ghostMode: false
   });
 });
 
