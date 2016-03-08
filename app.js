@@ -36,11 +36,8 @@ app.get('/', function (req, res) {
 // every request we get
 app.get('/:room', function (req, res) {
   var room = req.params.room;
-
-  // is there a room
-  // send over the players to the room
-
-  res.render('game', { room, host: 'http://localhost:'+port });
+  var url = req.protocol + '://' + req.get('host') + req.originalUrl;
+  res.render('game', { room, url });
 });
 
 // every request we get
