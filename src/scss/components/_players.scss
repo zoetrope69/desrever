@@ -41,11 +41,13 @@
   text-transform: uppercase;
   font-family: 'Caveat Brush', sans-serif;
   font-size: 3em;
-  line-height: 2.5em;
   text-shadow: 0 4px 0 rgba(255, 255, 255, .15);
+
+  white-space: nowrap;
 }
 
 .player__name small {
+  margin-top: .33em;
   margin-left: .5em;
   padding: .25em 0;
 
@@ -54,9 +56,19 @@
   text-shadow: none;
 }
 
+@keyframes polaroidBob {
+  to {
+    transform: scale(1.025);
+  }
+}
+
 .polaroid__wrap {
   padding: .25em;
   padding-right: 1em;
+}
+
+.player--speaking .polaroid__wrap {
+  animation: polaroidBob .33s ease-out infinite alternate;
 }
 
 .polaroid {
@@ -73,11 +85,59 @@
   transform: rotate(-2.5deg);
 }
 
-.player--speaking .polaroid {
-  background: red;
-}
-
 .polaroid__image {
   max-width: 100px;
   border-radius: 2px;
+}
+
+@keyframes speakingBob {
+  to {
+    transform: translateY(0%);
+  }
+}
+
+.player__speaking {
+  color: rgba(0, 0, 0, .5);
+  font-weight: 700;
+  font-size: 1.25em;
+
+  opacity: 0;
+
+  transition: opacity .1s ease-in;
+  transform: translateY(-2.5%);
+  animation: speakingBob .33s ease-in infinite alternate;
+}
+
+.player--speaking .player__speaking {
+  opacity: 1;
+}
+
+.player .ready-wrap {
+  float: right;
+  margin: -1em -1.5em -1em 1em;
+
+  width: 10%;
+
+  background: rgba(0, 0, 0, .25);
+
+  transition: opacity .1s ease-in;
+  transform: translateZ(0); // gpu hack
+}
+
+.player .ready-wrap--hidden {
+  opacity: 0;
+}
+
+.player .ready-wrap .ready {
+  display: block;
+  width: 100%;
+
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, .85);
+  font-family: 'Caveat Brush', sans-serif;
+  font-weight: 700;
+  font-size: 2.5em;
+
+  transform: rotate(90deg) translateX(50%);
 }

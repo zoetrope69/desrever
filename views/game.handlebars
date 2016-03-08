@@ -2,28 +2,45 @@
   <div class="grid-block vertical">
     <h1>{{room}}</h1>
 
-    <label class="room-url">
-      <span class="room-url__instruction">Invite your friends with this URL!</span>
-      <span class="room-url__message room-url__message--hidden">Copied URL to clipboard!</span>
-      <textarea class="room-url__url">http:{{host}}/{{room}}</textarea>
-    </label>
-
     <ul class="info"></ul>
 
-    <!-- <button class="button--ready-up button large expand">Ready up</button> -->
-    <!-- <button class="button--start-game button large expand success">Start game</button> -->
+    <div class="state--lobby">
 
-    <button class="button--record button expand">
-      <span class="button--record__text">Record</span>
-      <div class="wave"></div>
-    </button>
-    <input class="checkbox--record" type="checkbox" id="ready" name="ready"/>
-    <label for="ready">Send to everyone else</label>
+      <label class="room-url">
+        <span class="room-url__instruction">Invite your friends with this URL!</span>
+        <span class="room-url__message room-url__message--hidden">Copied URL to clipboard!</span>
+        <textarea class="room-url__url">http:{{host}}/{{room}}</textarea>
+      </label>
 
-    <input class="inputName"></input>
-    <label for="readyUp">Ready?</label>
-    <input class="readyUp" type="checkbox" name="readyUp">
-    <button class="hide button--start_game button disabled" type="button" name="startGame" disabled>Start Game!</button>
+      <label>
+        Your name
+        <input class="inputName" type="text" placeholder="Your name here">
+      </label>
+
+      <div class="grid-block" style="margin-top: 1em;">
+        <div class="grid-block shrink">
+          <div class="switch">
+            <input type="checkbox" class="readyUp" name="readyUp" id="readyUp">
+            <label for="readyUp"></label>
+          </div>
+        </div>
+        <label class="ready-text grid-block" for="readyUp">Ready?</label>
+      </div>
+
+      <button class="hide button--start_game button large expand success disabled" type="button" name="startGame" disabled>Start Game!</button>
+
+    </div>
+
+    <div class="state--game">
+
+      <button class="button--record button expand">
+        <span class="button--record__text">Record</span>
+        <div class="wave"></div>
+      </button>
+      <input class="checkbox--record" type="checkbox" id="ready" name="ready"/>
+      <label for="ready">Send to everyone else</label>
+
+    </div>
 
   </div>
   <div class="grid-block vertical" style="padding: 0;">
@@ -35,8 +52,13 @@
               <img class="polaroid__image" src="assets/1.gif">
             </div>
           </div>
-          <span class="player__name grid-block"><small>Waiting for player...</small></span>
-          <span class='ready'></span>
+          <div class="grid-block vertical">
+            <span class="player__name grid-block shrink"><small>Waiting for player...</small></span>
+            <span class="player__speaking grid-block">&hellip; is speaking</span>
+          </div>
+          <span class="ready-wrap ready-wrap--hidden">
+            <span class="ready">Ready!</span>
+          </span>
         </li>
         <li class="player player--2 player--waiting grid-block">
           <div class="polaroid__wrap grid-block shrink">
@@ -44,8 +66,13 @@
               <img class="polaroid__image" src="assets/2.gif">
             </div>
           </div>
-          <span class="player__name grid-block"><small>Waiting for player...</small></span>
-          <span class='ready'></span>
+          <div class="grid-block vertical">
+            <span class="player__name grid-block shrink"><small>Waiting for player...</small></span>
+            <span class="player__speaking grid-block">&hellip; is speaking</span>
+          </div>
+          <span class="ready-wrap ready-wrap--hidden">
+            <span class="ready">Ready!</span>
+          </span>
         </li>
         <li class="player player--3 player--waiting grid-block">
           <div class="polaroid__wrap grid-block shrink">
@@ -53,8 +80,13 @@
               <img class="polaroid__image" src="assets/3.gif">
             </div>
           </div>
-          <span class="player__name grid-block"><small>Waiting for player...</small></span>
-          <span class='ready'></span>
+          <div class="grid-block vertical">
+            <span class="player__name grid-block shrink"><small>Waiting for player...</small></span>
+            <span class="player__speaking grid-block">&hellip; is speaking</span>
+          </div>
+          <span class="ready-wrap ready-wrap--hidden">
+            <span class="ready">Ready!</span>
+          </span>
         </li>
         <li class="player player--4 player--waiting grid-block">
           <div class="polaroid__wrap grid-block shrink">
@@ -62,8 +94,13 @@
               <img class="polaroid__image" src="assets/4.gif">
             </div>
           </div>
-          <span class="player__name grid-block"><small>Waiting for player...</small></span>
-          <span class='ready'></span>
+          <div class="grid-block vertical">
+            <span class="player__name grid-block shrink"><small>Waiting for player...</small></span>
+            <span class="player__speaking grid-block">&hellip; is speaking</span>
+          </div>
+          <span class="ready-wrap ready-wrap--hidden">
+            <span class="ready">Ready!</span>
+          </span>
         </li>
       </ul>
     </div>

@@ -108,9 +108,9 @@ var game = function() {
 
             if (player.ready) {
               playersReadyTotal++;
-              playerEl.querySelector('.ready').innerHTML = 'Ready!';
+              playerEl.querySelector('.ready-wrap').classList.remove('ready-wrap--hidden');
             } else {
-              playerEl.querySelector('.ready').innerHTML = '';
+              playerEl.querySelector('.ready-wrap').classList.add('ready-wrap--hidden');
             }
           }
         }
