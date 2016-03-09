@@ -81,9 +81,9 @@ gulp.task('browser-sync', function() {
 /* watch scss, js and html files, doing different things with each */
 gulp.task('default', ['sass', 'scripts', 'copy', 'browser-sync'], function () {
   /* watch scss, run the sass task on change */
-  gulp.watch(['src/scss/**/*.scss'], ['sass'])
+  gulp.watch(['src/scss/**/**/*.scss'], ['sass'])
   /* watch app.js file, run the scripts task on change */
-  gulp.watch(['src/js/**/*.js'], ['scripts'])
+  gulp.watch(['src/js/**/**/*.js'], ['scripts'])
   /* watch .html files, run the bs-reload task on change */
   gulp.watch(['views/**/*.handlebars', 'app.js'], ['bs-reload']);
   /* watch assets, copy and bs-reload on change */
