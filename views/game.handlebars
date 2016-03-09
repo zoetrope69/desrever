@@ -28,10 +28,11 @@
       </div>
 
       <button class="hide button--start_game button large expand success disabled" type="button" name="startGame" disabled>Start Game!</button>
-
     </div>
 
     <div class="state--game">
+
+      <h2>game shit here waaaaaaaaaaaaah</h2>
 
       <button class="button--record button expand">
         <span class="button--record__text">Record</span>
@@ -39,6 +40,12 @@
       </button>
       <input class="checkbox--record" type="checkbox" id="ready" name="ready"/>
       <label for="ready">Send to everyone else</label>
+
+      <div class="grid-block vertical" style="margin-top: 1em;">
+        Gain: <input id="inp_gain" type="range" min="0" max="100" value="10"><br>
+        Use Noise Reducer: <input type="checkbox" id="inp_useReducer" checked><br>
+        Preset: <input id="inp_preset" type="range" min="0" max="3" value="0"><span id="preset">Default (BG Noise/Rumble 1)</span><br>
+      </div>
 
     </div>
 

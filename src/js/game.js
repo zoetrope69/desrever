@@ -1,40 +1,171 @@
 var game = function() {
-  var Recorder = require('recorderjs');
   var io = require('socket.io-client');
   var debounce = require('underscore').debounce;
   var utils = require('./utils');
+  var audio = require('./audio');
   var hark = require('hark');
+  var audio = require('./audio');
+  var getUserMedia = require('./getusermedia');
+  
+  var socket = io.connect();
 
-  navigator.getUserMedia({ audio: true }, startUserMedia, function(e) {
-    utils.displayError('Cant get user media');
-    console.warn('No live audio input: ' + e);
-  });
+  var maxPlayers = 4;
+  var currentPlayer = {};
 
-  function startUserMedia(stream) {
-    var maxPlayers = 4;
-    var socket = io.connect();
+  var sourceBuffer; // sound source buffer
+  var source; // currently playing source node
+  var reducer; // noise reducer unit
+  var meter; // level meter
+  var gain; // master gain
 
-    try {
-      var audioContext = new AudioContext();
-      console.log('Audio context set up.');
-    } catch (e) {
-      console.log(e);
-      var message = 'No web audio support in this browser!';
-      utils.displayError(message);
-      console.warn(message, e);
+  // create the nodes
+  reducer = new audio.NoiseReducer(1, 20);
+  meter = new audio.Meter();
+  gain = audio.context.createGain();
+
+  // create the audio graph: (source ->) gain -> reducer -> meter -> output
+  gain.connect(reducer.input);
+  reducer.output.connect(meter.node);
+  meter.node.connect(audio.context.destination);
+
+  var playing = false; // stores whether the audio is playing or not
+
+  // noise reducer presets
+  var presets = [
+    {
+      name: 'BG Noise/Rumble 1',
+      freqs: [164, 200, 191, 677, 1014, 2858, 6240],
+      types: ['highpass', 'peaking', 'notch', 'notch', 'notch', 'notch', 'lowpass'],
+    },
+    {
+      name: 'BG Noise/Rumble 2',
+      freqs: [144, 986],
+      types: ['highpass', 'notch'],
+      Qs: [1, 0.5]
+    },
+    {
+      name: 'Low Volume 1',
+      freqs: [194, 524, 2675, 4058],
+      types: ['highpass', 'peaking', 'notch', 'peaking'],
+      Qs: [1, 1, 0.5, 1],
+      gains: [1, 16, 1, 20]
+    },
+    {
+      name: 'Low Volume 2',
+      freqs: [194, 524, 1600, 6000],
+      types: ['highpass', 'peaking', 'notch', 'peaking'],
+      Qs: [1, 2, 1, 2],
+      gains: [1, 16, 1, 20]
     }
+  ];
 
-    var recordButtonEl = document.querySelector('.button--record');
-    var recordButtonTextEl = document.querySelector('.button--record__text');
-    var readyToggleEl = document.querySelector('.checkbox--record');
-    var wordEl = document.querySelector('.word');
-    var roomUrlEl = document.querySelector('.room-url__url');
-    var copiedToClipboardEl = document.querySelector('.room-url__message');
-    var waveEl = document.querySelector('.wave');
-    var startGameEl = document.querySelector('.button--start_game');
-    var currentPlayer = {};
+  // elements
+  var recordButtonEl = document.querySelector('.button--record');
+  var recordButtonTextEl = document.querySelector('.button--record__text');
+  var readyToggleEl = document.querySelector('.checkbox--record');
+  var wordEl = document.querySelector('.word');
+  var roomUrlEl = document.querySelector('.room-url__url');
+  var copiedToClipboardEl = document.querySelector('.room-url__message');
+  var waveEl = document.querySelector('.wave');
+  var startGameEl = document.querySelector('.button--start_game');
+  var nameInputEl = document.querySelector('.inputName');
+  var readyUpEl = document.querySelector('.readyUp');
+  var reducerCheckboxEl = document.getElementById("inp_useReducer");
+  var gainInputEl = document.getElementById('inp_gain');
+  var presetInputEl = document.getElementById('inp_preset');
+  var presetInputTextEl = document.getElementById('preset');
 
-    var speechEvents = hark(stream, {});
+  // sets the EQ preset
+  function setEQPreset(num) {
+    var preset = presets[num];
+    if (preset.freqs) reducer.eq.setBandFrequencies(preset.freqs);
+    if (preset.types) reducer.eq.setBandTypes(preset.types);
+    if (preset.Qs) reducer.eq.setQValues(preset.Qs);
+    if (preset.gains) reducer.eq.setBandGains(preset.gains);
+  }
+
+  // play the audio
+  function playAudio() {
+    // reset the meter & set playing to true
+    meter.reset();
+    playing = true;
+
+    // create source node, connect it to the audio graph, and start it
+    source = audio.context.createBufferSource();
+    source.buffer = sourceBuffer;
+    source.connect(gain);
+    source.start(0);
+  }
+
+  // stops the currently playing source node
+  function stopAudio() {
+    source.stop(0);
+    source.disconnect(0);
+    playing = false;
+  }
+
+  // record sound from the microphone
+  function record(recorder) {
+    recordButtonTextEl.innerHTML = 'Recording...';
+    recordButtonEl.classList.add('button--record--recording');
+
+    waveEl.innerHTML = '<div class="wave__recording"></div>';
+
+    recorder.startRecording();
+
+    window.setTimeout(function() {
+      recorder.stopRecording(function(buffer) {
+        var reversedBuffer = audio.reverseBuffer(buffer);
+        sourceBuffer = reversedBuffer;
+
+        waveEl.innerHTML = '';
+
+        var waveSVG = utils.waveSVG(sourceBuffer, 500, 100);
+        waveEl.appendChild(waveSVG);
+
+        recordButtonTextEl.innerHTML = 'Record!';
+        recordButtonEl.classList.remove('button--record--recording');
+
+        playAudio();
+      });
+    }, 5000);
+  }
+
+  // changes the gain when the slider is moved
+  function onGainChanged(event) {
+    gain.gain.value = parseFloat(event.target.value) / 10;
+  }
+
+  // toggles the use of the reducer
+  function onReducerToggled(event) {
+    var useReducer = reducerCheckboxEl.checked;
+    reducer.bypass(!useReducer);
+  }
+
+  // changes the noise reducer EQ preset
+  function onPresetChanged(event) {
+    var presetNum = parseInt(event.target.value);
+    setEQPreset(presetNum);
+    presetInputTextEl.innerHTML = presets[presetNum].name;
+  }
+
+  function onNameInputChanged(event) {
+    currentPlayer.name = event.target.value;
+    socket.emit('updatePlayer', currentPlayer);
+  }
+
+  function onReadyUpChanged(event) {
+    currentPlayer.ready = event.target.checked;
+    socket.emit('updatePlayer', currentPlayer);
+  }
+
+  getUserMedia({ audio: true, video: false }).then(function(stream) {
+    console.log('getUserMedia works, stream created');
+
+    var recorder = new audio.Record(stream);
+    recordButtonEl.addEventListener("click", function(){ record(recorder); });
+
+    var speechEvents = hark(stream, { threshold: -50 });
 
     speechEvents.on('speaking', function() {
       currentPlayer.speaking = true;
@@ -42,182 +173,97 @@ var game = function() {
     });
 
     speechEvents.on('stopped_speaking', function() {
-      currentPlayer.speaking = true;
+      currentPlayer.speaking = false;
       socket.emit('updatePlayer', currentPlayer);
     });
+  }).catch(function(error) {
+    return console.warn('No live audio input: ' + error);
+  });
 
-    document.querySelector('.inputName').oninput = function(event) {
-      currentPlayer.name = event.target.value;
-      socket.emit('updatePlayer', currentPlayer);
-    };
+  gainInputEl.addEventListener('change', onGainChanged);
+  reducerCheckboxEl.addEventListener('change', onReducerToggled);
+  presetInputEl.addEventListener('change', onPresetChanged);
+  nameInputEl.addEventListener('input', onNameInputChanged);
+  readyUpEl.addEventListener('click', onReadyUpChanged);
 
-    document.querySelector('.readyUp').addEventListener('click', function(event){
-      currentPlayer.ready = event.target.checked;
-      socket.emit('updatePlayer', currentPlayer);
-    });
+  // when clicking into the room url textarea select and copy to clipboard
+  roomUrlEl.addEventListener('click', function(){
+    roomUrlEl.select();
 
-    // when clicking into the room url textarea select and copy to clipboard
-    roomUrlEl.addEventListener('click', function(){
-      roomUrlEl.select();
+    var successfulCopy = document.execCommand('copy');
+    if (successfulCopy){
+      copiedToClipboardEl.classList.remove('room-url__message--hidden');
+      setTimeout(function() {
+        copiedToClipboardEl.classList.add('room-url__message--hidden');
+      }, 1000);
+    }
+  });
 
-      var successfulCopy = document.execCommand('copy');
-      if (successfulCopy){
-        copiedToClipboardEl.classList.remove('room-url__message--hidden');
-        setTimeout(function() {
-          copiedToClipboardEl.classList.add('room-url__message--hidden');
-        }, 1000);
-      }
-    });
+  socket.on('connect', function(){
+    var room = window.location.pathname.split('/')[1];
+    socket.emit('room', room);
 
-    socket.on('connect', function(){
-      var room = window.location.pathname.split('/')[1];
-      socket.emit('room', room);
+    var id = utils.makeId();
+    currentPlayer.id = id;
+    currentPlayer.name = id;
+    socket.emit('newPlayer', currentPlayer);
+  });
 
-      var id = utils.makeId();
-      currentPlayer.id = id;
-      currentPlayer.name = id;
-      socket.emit('newPlayer', currentPlayer);
-    });
+  socket.on('players', function (players) {
+    var playersReadyTotal = 0;
 
-    socket.on('players', function (players) {
-      console.log(players);
-      var playersReadyTotal = 0;
-      if (players) {
-        for (var i = 0; i < maxPlayers; i++) {
-          var player = players[i];
-          var playerEl = document.querySelector('.player--' + (i + 1));
+    if (players) {
+      for (var i = 0; i < maxPlayers; i++) {
+        var player = players[i];
+        var playerEl = document.querySelector('.player--' + (i + 1));
 
-          if(!player) {
-            playerEl.classList.add('player--waiting');
-            playerEl.querySelector('.player__name').innerHTML = '<small>Waiting for player...</small>';
-          } else {
-
-            if (currentPlayer.id === player.id) {
-              currentPlayer = player;
-            }
-
-            if (player.speaking) {
-              playerEl.classList.add('player--speaking');
-            } else {
-              playerEl.classList.remove('player--speaking');
-            }
-
-            playerEl.classList.remove('player--waiting');
-            playerEl.querySelector('.player__name').innerHTML = '' + player.name + (player.name === currentPlayer.name ? '<small>You!</small>' : '');
-
-
-            if (player.ready) {
-              playersReadyTotal++;
-              playerEl.querySelector('.ready-wrap').classList.remove('ready-wrap--hidden');
-            } else {
-              playerEl.querySelector('.ready-wrap').classList.add('ready-wrap--hidden');
-            }
+        if(!player) {
+          playerEl.classList.add('player--waiting');
+          playerEl.querySelector('.player__name').innerHTML = '<small>Waiting for player...</small>';
+        } else {
+          if (currentPlayer.id === player.id) {
+            currentPlayer = player;
           }
-        }
 
-        if (currentPlayer.host) {
-          startGameEl.classList.remove('hide');
-        } else {
-          startGameEl.classList.add('hide');
-        }
+          if (player.speaking) {
+            playerEl.classList.add('player--speaking');
+          } else {
+            playerEl.classList.remove('player--speaking');
+          }
 
-        if (playersReadyTotal >= 2 && playersReadyTotal === players.length) {
-          startGameEl.classList.remove('disabled');
-          startGameEl.setAttribute('disabled', false);
-        } else {
-          startGameEl.classList.add('disabled');
-          startGameEl.setAttribute('disabled', true);
+          if (player.ready) {
+            playersReadyTotal++;
+            playerEl.querySelector('.ready-wrap').classList.remove('ready-wrap--hidden');
+          } else {
+            playerEl.querySelector('.ready-wrap').classList.add('ready-wrap--hidden');
+          }
+
+          playerEl.classList.remove('player--waiting');
+          playerEl.querySelector('.player__name').innerHTML = '' + player.name + (player.name === currentPlayer.name ? '<small>You!</small>' : '');
         }
       }
-    });
 
-    socket.on('info', function (text) {
-      var li = document.createElement('li');
-      li.appendChild(document.createTextNode(text));
-      document.querySelector('.info').appendChild(li);
-    });
+      if (currentPlayer.host) {
+        startGameEl.classList.remove('hide');
+      } else {
+        startGameEl.classList.add('hide');
+      }
 
-    socket.on('recieveAudio', function(playerName, word, blob) {
-      reverseAudio(blob);
-    });
-
-    var input = audioContext.createMediaStreamSource(stream);
-    console.log('Media stream created.');
-
-    volume = audioContext.createGain();
-    volume.gain.value = 0;
-    input.connect(volume);
-    volume.connect(audioContext.destination);
-    console.log('Input connected to audio context destination.');
-
-    var recorder = new Recorder(input);
-    console.log('Recorder initialised.');
-
-    if (recordButtonEl) {
-      recordButtonEl.addEventListener('mousedown', function(){ startRecording(recorder) });
-      recordButtonEl.addEventListener('mouseup', function(){ stopRecording(recorder) });
+      if (playersReadyTotal >= 2 && playersReadyTotal === players.length) {
+        startGameEl.classList.remove('disabled');
+        startGameEl.setAttribute('disabled', false);
+      } else {
+        startGameEl.classList.add('disabled');
+        startGameEl.setAttribute('disabled', true);
+      }
     }
+  });
 
-    function reverseAudio(arrayBuffer) {
-      audioContext.decodeAudioData(arrayBuffer, function(buffer) {
-       var source = audioContext.createBufferSource();
-       Array.prototype.reverse.call( buffer.getChannelData(0) );
-       Array.prototype.reverse.call( buffer.getChannelData(1) );
-
-       source.buffer = buffer;
-       source.connect(audioContext.destination);
-       source.start(0);
-
-       var waveSVG = utils.waveSVG(buffer, 500, 100);
-       waveEl.appendChild(waveSVG);
-     });
-    }
-
-    var recordingTimer;
-
-    function startRecording(recorder) {
-      console.log('Recording...');
-      recordButtonTextEl.innerHTML = 'Recording...';
-      recordButtonEl.classList.add('button--record--recording');
-
-      waveEl.innerHTML = '<div class="wave__recording"></div>';
-
-      recordingTimer = window.setTimeout(function() {
-        console.log('memees');
-        stopRecording(recorder);
-      }, 5 * 1000); // in 5 secs stop recording
-
-      recorder.record();
-    }
-
-    function stopRecording(recorder) {
-      console.log('Stopped recording.');
-      recordButtonTextEl.innerHTML = 'Record!';
-      recordButtonEl.classList.remove('button--record--recording');
-
-      window.clearTimeout(recordingTimer);
-
-      waveEl.innerHTML = '';
-
-      recorder.stop();
-      recorder.exportWAV(handleAudio);
-      recorder.clear();
-    }
-
-    function handleAudio(blob) {
-      var fileReader = new FileReader();
-      fileReader.onload = function() {
-        var arrayBuffer = this.result;
-
-        if (readyToggleEl.checked) {
-          socket.emit('sendAudio', arrayBuffer);
-        } else {
-          reverseAudio(arrayBuffer);
-        }
-      };
-      fileReader.readAsArrayBuffer(blob);
-    }
-  }
+  socket.on('info', function (text) {
+    var li = document.createElement('li');
+    li.appendChild(document.createTextNode(text));
+    document.querySelector('.info').appendChild(li);
+  });
 };
 
 module.exports = game;

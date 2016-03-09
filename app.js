@@ -101,8 +101,6 @@ io.on('connection', function(socket){
     rooms[socket.room].players.push(socket.player);
     var players = rooms[socket.room].players;
 
-    console.log(rooms[socket.room]);
-
     // assign new word
     newWord(socket);
 
