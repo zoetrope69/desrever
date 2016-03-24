@@ -75,6 +75,11 @@ io.on('connection', function(socket){
     socket.join(room);
   });
 
+  socket.on('setState', function(state){
+    rooms[socket.room].state = state;
+    io.sockets.in(socket.room).emit('state', rooms[socket.room].state);
+  });
+
   // when sent audio to server
   socket.on('sendAudio', function(data){
     // send everyone but current player the audio
@@ -92,7 +97,7 @@ io.on('connection', function(socket){
     socket.player = new Player(player);
 
     // add playerName to current players list in room
-    rooms[socket.room] = rooms[socket.room] || { players: [] }; // default to empty if no players
+    rooms[socket.room] = rooms[socket.room] || { state: 'lobby', players: [] }; // default to empty if no players
 
     if(rooms[socket.room].players.length === 0){
       socket.player.setHost(true);
@@ -106,6 +111,7 @@ io.on('connection', function(socket){
 
     // update playerName list on everyone's client
     io.sockets.in(socket.room).emit('players', players);
+    io.sockets.in(socket.room).emit('state', rooms[socket.room].state);
 
     // send some info about what happened
     socket.broadcast.in(socket.room).emit('info', socket.player.name + ' has connected');

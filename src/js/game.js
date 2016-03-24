@@ -75,6 +75,21 @@ var game = function() {
   var presetInputEl = document.getElementById('inp_preset');
   var presetInputTextEl = document.getElementById('preset');
 
+  var stateLobby = document.querySelector('.state--lobby');
+  var stateGame = document.querySelector('.state--game');
+
+  startGameEl.addEventListener('click', function(){
+    console.log('startgameclick');
+    if (!startGameEl.classList.contains('button--start_game--disabled')) {
+      socket.emit('setState', 'game');
+    }
+  });
+
+  function changeToGame() {
+    stateLobby.style.display = 'none';
+    stateGame.style.display = 'block';
+  }
+
   // sets the EQ preset
   function setEQPreset(num) {
     var preset = presets[num];
@@ -219,6 +234,8 @@ var game = function() {
 
         if(!player) {
           playerEl.classList.add('player--waiting');
+          playerEl.classList.remove('player--speaking');
+          playerEl.querySelector('.ready-wrap').classList.add('ready-wrap--hidden');
           playerEl.querySelector('.player__name').innerHTML = '<small>Waiting for player...</small>';
         } else {
           if (currentPlayer.id === player.id) {
@@ -250,11 +267,9 @@ var game = function() {
       }
 
       if (playersReadyTotal >= 2 && playersReadyTotal === players.length) {
-        startGameEl.classList.remove('disabled');
-        startGameEl.setAttribute('disabled', false);
+        startGameEl.classList.remove('button--start_game--disabled');
       } else {
-        startGameEl.classList.add('disabled');
-        startGameEl.setAttribute('disabled', true);
+        startGameEl.classList.add('button--start_game--disabled');
       }
     }
   });
