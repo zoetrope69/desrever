@@ -89,3 +89,5 @@ gulp.task('default', ['sass', 'scripts', 'copy', 'browser-sync'], function () {
   /* watch assets, copy and bs-reload on change */
   gulp.watch(['src/assets/*'], ['copy', 'bs-reload']);
 });
+
+gulp.task('build', ['sass', 'scripts', 'copy']);

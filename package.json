@@ -5,6 +5,7 @@
   "main": "app.js",
   "scripts": {
     "start": "node app.js",
+    "postinstall": "gulp build",
     "dev": "concurrently 'nodemon app.js' 'gulp'",
     "lint": "eslint -c .eslintrc src/",
     "test": "npm run lint"
