@@ -22,9 +22,7 @@
     "socket.io": "^1.4.5",
     "socket.io-client": "^1.4.5",
     "svg-create-element": "^1.0.0",
-    "underscore": "^1.8.3"
-  },
-  "devDependencies": {
+    "underscore": "^1.8.3",
     "browser-sync": "^2.11.1",
     "browserify": "^13.0.0",
     "concurrently": "^2.0.0",
