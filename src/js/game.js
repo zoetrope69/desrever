@@ -6,7 +6,7 @@ var game = function() {
   var hark = require('hark');
   var audio = require('./audio');
   var getUserMedia = require('./getusermedia');
-  
+
   var socket = io.connect();
 
   var maxPlayers = 4;
@@ -129,19 +129,27 @@ var game = function() {
     recorder.startRecording();
 
     window.setTimeout(function() {
-      recorder.stopRecording(function(buffer) {
-        var reversedBuffer = audio.reverseBuffer(buffer);
-        sourceBuffer = reversedBuffer;
+      recorder.stopRecording(function(wav) {
+        audio.bufferFromFile(wav, function(buffer) {
+          waveEl.innerHTML = '';
 
-        waveEl.innerHTML = '';
+          recordButtonTextEl.innerHTML = 'Record!';
+          recordButtonEl.classList.remove('button--record--recording');
 
-        var waveSVG = utils.waveSVG(sourceBuffer, 500, 100);
-        waveEl.appendChild(waveSVG);
+          if (readyToggleEl.checked) {
+            socket.emit('sendAudio', buffer);
+          } else {
+            audio.context.decodeAudioData(buffer, function(audioBuffer) {
+              var reversedBuffer = audio.reverseBuffer(audioBuffer);
 
-        recordButtonTextEl.innerHTML = 'Record!';
-        recordButtonEl.classList.remove('button--record--recording');
+              var waveSVG = utils.waveSVG(audioBuffer, 500, 100);
+              waveEl.appendChild(waveSVG);
 
-        playAudio();
+              sourceBuffer = audioBuffer;
+              playAudio();
+            });
+          }
+        });
       });
     }, 5000);
   }
@@ -222,6 +230,22 @@ var game = function() {
     currentPlayer.id = id;
     currentPlayer.name = id;
     socket.emit('newPlayer', currentPlayer);
+  });
+
+  socket.on('state', function (state) {
+    console.log('state', state);
+    if (state === 'game') {
+      changeToGame();
+    }
+  });
+
+  socket.on('recieveAudio', function (playerName, word, buffer) {
+    audio.context.decodeAudioData(buffer, function(audioBuffer) {
+      var reversedBuffer = audio.reverseBuffer(audioBuffer);
+
+      sourceBuffer = reversedBuffer;
+      playAudio();
+    });
   });
 
   socket.on('players', function (players) {

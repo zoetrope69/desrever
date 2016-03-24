@@ -35,11 +35,7 @@ var Record = function(stream) {
     console.log('Stopped recording.');
 
     _this.recorder.stop();
-    _this.recorder.exportWAV(function(wav) {
-      bufferFromFile(wav, function(buffer) {
-        callback(buffer);
-      });
-    });
+    _this.recorder.exportWAV(callback);
 
     _this.recorder.clear();
   }
@@ -56,10 +52,7 @@ var reverseBuffer = function(buffer) {
 var bufferFromFile = function(file, callback) {
   var reader = new FileReader();
   reader.onload = function(e) {
-    context.decodeAudioData(e.target.result, function(buffer) {
-      console.log('Sound loaded', file.name);
-      callback(buffer);
-    });
+    callback(e.target.result);
   };
   reader.readAsArrayBuffer(file);
 };
@@ -250,6 +243,7 @@ var NoiseReducer = function(threshold, target) {
 module.exports = {
   context: context,
   Record: Record,
+  bufferFromFile: bufferFromFile,
   reverseBuffer: reverseBuffer,
   bufferFromFile: bufferFromFile,
   ParametricEQ: ParametricEQ,
